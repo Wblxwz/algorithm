@@ -537,14 +537,6 @@ void RBTree::rbInsertFixup(RBNode* z)
 	root->color = Black;
 }
 
-//非类型模板参数(需要常量表达式的地方可以使用非类型参数)
-//该参数必须具有静态生存期且是一个常量值,因为编译器必须在编译期间就能确认
-template<int N, int M>inline constexpr
-void cs(int(&a)[N], int(&b)[M])
-{
-	std::cout << a[0] << " " << b[0];
-}
-
 int main(int argc, char* argv[])
 {
 	/*DoubleList* l = new DoubleList;

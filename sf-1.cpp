@@ -12,47 +12,9 @@ using std::cin;
 using std::cout;
 using std::endl;
 
-SQLRETURN ret;
-SQLHENV henv;
-SQLHDBC hdbc;
-SQLHSTMT hstmt;
-
-//按照习惯常量值大写
-
-
 #define ROWS 3
 #define SIZE 10
 
-//using namespace std;
-
-//编译器优化
-//（显式)代码移动
-//将需要多次使用的循环条件函数写在循环外
-
-//内联函数 告诉编译器最好在调用出展开该函数代码
-
-/*循环展开（编译器会自动优化，正常写循环即可）
-并行累积 （利用流水线，浮点类型手动）
-重新结合变换 （通过括号变换累积顺序，浮点类型手动）*/
-/*三目运算符更快是因为CPU指令流水线性质
-//相当于展开了代码，使用条件数据传送而不是条件分支传送
-避免了分支预测错误的惩罚*/
-
-
-//inline void print(const int* a, const size_t& n)
-//{
-//	int i;
-//	for (i = 0; i < n - 1; i += 2)
-//	{
-//		//cout << a[i] << " ";
-//		cout << a[i] << " " << a[i + 1] << " ";
-//	}
-//	if (i < n)
-//		cout << a[n - 1];
-//	cout << endl;
-//}
-
-//const引用可以引用立即数 普通的引用不能引用立即数
 template<typename T, typename U>
 inline void print(T* a, const U& n)
 {
@@ -952,18 +914,6 @@ void xianXuPrint(BiTree* t)
 
 int main(int argc, char* argv[])
 {
-	//多线程
-
-	//cout << argc << " " << argv[0];
-
-	//函数指针
-	//void (*p)(const int*, const int&) = print;
-
-	//rdbuf()获得一个指向当前流指针
-	/*std::ofstream log("./log.txt");
-	std::clog.rdbuf(log.rdbuf());
-	std::clog << "clog";*/
-
 	/*int a[2] = { 0 }, b[2] = { 1 };
 	cs(a, b);*/
 
