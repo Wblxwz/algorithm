@@ -7,6 +7,7 @@
 #include<sqltypes.h>
 #include <fstream>
 #include <vector>
+#include <string>
 
 using std::cout;
 using std::cin;
@@ -381,6 +382,10 @@ public:
 	void rightRotate(RBNode* y);
 	void rbInsert(RBNode* z);
 	void rbInsertFixup(RBNode* z);
+	void rbTransplant(RBNode* u, RBNode* v);
+	void rbDelete(RBNode* z);
+	void RBDeleteFixUp(RBNode* x);
+	RBNode* RBTreeMin(RBNode* x);
 private:
 	RBNode* root, * tnull;
 };
@@ -489,28 +494,33 @@ void RBTree::rbInsertFixup(RBNode* z)
 {
 	while (z->p->color == Red)
 	{
+		//z的父结点的父结点一定存在（5条性质）
 		if (z->p == z->p->p->l)
 		{
+			//情况1 z的叔结点y为红色
 			RBNode* y = z->p->p->r;
 			if (y->color == Red)
 			{
 				z->p->color = Black;
 				y->color = Black;
 				z->p->p->color = Red;
+				//一红带两黑
 				z = z->p->p;
 			}
-			else
+			else //情况2 z的叔结点是黑色
 			{
-				if (z == z->p->r)
+				if (z == z->p->r) //且z是右孩子
 				{
 					z = z->p;
-					leftRotate(z);
+					leftRotate(z);//目的将情况2转为情况3,即转到左孩子
 				}
+				//情况3 且z是左孩子
 				z->p->color = Black;
 				z->p->p->color = Red;
 				rightRotate(z->p->p);
 			}
 		}
+		//叔结点相反，但代码相同
 		else
 		{
 			RBNode* y = z->p->p->l;
@@ -535,6 +545,137 @@ void RBTree::rbInsertFixup(RBNode* z)
 		}
 	}
 	root->color = Black;
+}
+
+void RBTree::rbTransplant(RBNode* u, RBNode* v)
+{
+	if (u->p == tnull)
+	{
+		root = v;
+	}
+	else if (u == u->p->l)
+	{
+		u->p->l = v;
+	}
+	else
+	{
+		u->p->r = v;
+	}
+	v->p = u->p;
+}
+
+RBNode* RBTree::RBTreeMin(RBNode* x)
+{
+	while (x->l)
+	{
+		x = x->l;
+	}
+	return x;
+}
+
+void RBTree::rbDelete(RBNode* z)
+{
+	RBNode* y = z;
+	RBNode* x = new RBNode;
+	int original_color = y->color;
+	if (z->l == tnull)
+	{
+		x = z->r;
+		rbTransplant(z, z->r);
+	}
+	else if (z->r == tnull)
+	{
+		x = z->l;
+		rbTransplant(z, z->l);
+	}
+	else
+	{
+		y = RBTreeMin(z->r);
+		original_color = y->color;
+		x = y->r;
+		if (y->p == z)
+		{
+			x->p = y;
+		}
+		else
+		{
+			rbTransplant(y, y->r);
+			y->r = z->r;
+			y->r->p = y;
+		}
+		rbTransplant(z, y);
+		y->l = z->l;
+		y->l->p = y;
+		y->color = z->color;
+	}
+	if (original_color == Black)
+	{
+		RBDeleteFixUp(x);
+	}
+}
+
+void RBTree::RBDeleteFixUp(RBNode* x)
+{
+	while (x != root && x->color == Black)
+	{
+		if (x == x->p->l)
+		{
+			RBNode* w = x->p->r;
+			if (w->color == Red)
+			{
+				w->color = Black;
+				x->p->color = Red;
+				leftRotate(x->p);
+				w = x->p->r;
+			}
+			if (w->l->color == Black && w->r->color == Black)
+			{
+				w->color = Red;
+				x = x->p;
+			}
+			else if (w->r->color == Black)
+			{
+				w->l->color = Black;
+				w->color = Red;
+				rightRotate(w);
+				w = x->p->r;
+			}
+			w->color = x->p->color;
+			x->p->color = Black;
+			w->r->color = Black;
+			leftRotate(x->p);
+			x = root;
+		}
+		else
+		{
+			RBNode* w = x->p->l;
+			if (w->color == Red)
+			{
+				w->color = Black;
+				x->p->color = Red;
+				rightRotate(x->p);
+				w = x->p->l;
+			}
+			if (w->l->color == Black && w->r->color == Black)
+			{
+				w->color = Red;
+				x = x->p;
+			}
+			else if (w->l->color == Black)
+			{
+				w->r->color = Black;
+				w->color = Red;
+				leftRotate(w);
+				w = x->p->l;
+			}
+			w->color = x->p->color;
+			x->p->color = Black;
+			w->l->color = Black;
+			rightRotate(x->p);
+			x = root;
+		}
+	}
+	x->color = Black;
 }
 
 int main(int argc, char* argv[])
@@ -576,7 +717,6 @@ int main(int argc, char* argv[])
 	cout << b.minNode(b.getRoot())->key << " " << b.maxNode(b.getRoot())->key << endl;
 	b.deleteSearch(6);
 	b.inOrder(b.getRoot());*/
-
 
 
 	return 0;
