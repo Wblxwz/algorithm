@@ -382,9 +382,9 @@ public:
 	void rightRotate(RBNode* y);
 	void rbInsert(RBNode* z);
 	void rbInsertFixup(RBNode* z);
-	void rbTransplant(RBNode* u, RBNode* v);
 	void rbDelete(RBNode* z);
 	void RBDeleteFixUp(RBNode* x);
+	void rbTransplant(RBNode* u, RBNode* v);
 	RBNode* RBTreeMin(RBNode* x);
 private:
 	RBNode* root, * tnull;
@@ -678,6 +678,35 @@ void RBTree::RBDeleteFixUp(RBNode* x)
 	x->color = Black;
 }
 
+//顺序统计树是在红黑树的基础上添加了x.size，即包含以x为根的子树在内的结点数
+//哨兵大小为0
+class OsTree
+{
+public:
+	OsTree* OsSelect(OsTree* x, int i);
+private:
+	OsTree* root, * left, * right, * p;
+	int key, size;
+};
+
+//中序遍历找秩（输出的位置）为i的结点，以root做开始结点x
+OsTree* OsTree::OsSelect(OsTree* x, int i)
+{
+	int r = x->left->size + 1;
+	if (r == i)
+	{
+		return x;
+	}
+	else if (r < i)
+	{
+		return OsSelect(x->left, i);
+	}
+	else
+	{
+		return OsSelect(x->right, i - r);
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	/*DoubleList* l = new DoubleList;
@@ -717,6 +746,7 @@ int main(int argc, char* argv[])
 	cout << b.minNode(b.getRoot())->key << " " << b.maxNode(b.getRoot())->key << endl;
 	b.deleteSearch(6);
 	b.inOrder(b.getRoot());*/
+
 
 
 	return 0;
