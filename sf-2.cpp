@@ -679,31 +679,229 @@ void RBTree::RBDeleteFixUp(RBNode* x)
 }
 
 //顺序统计树是在红黑树的基础上添加了x.size，即包含以x为根的子树在内的结点数
+//要从红黑树中扩展，没加入红黑树的操作，只写了多出来的操作
+//并且红黑树的插入删除左旋右旋也要做多余的操作来维护多出来的信息
 //哨兵大小为0
-class OsTree
+
+struct OsTreeNode
 {
-public:
-	OsTree* OsSelect(OsTree* x, int i);
-private:
-	OsTree* root, * left, * right, * p;
+	OsTreeNode* left, * right, * p;
 	int key, size;
 };
 
-//中序遍历找秩（输出的位置）为i的结点，以root做开始结点x
-OsTree* OsTree::OsSelect(OsTree* x, int i)
+class OsTree
 {
-	int r = x->left->size + 1;
+public:
+	OsTreeNode* OsSelect(OsTreeNode* x, int i);
+	int OsRank(OsTree* t, OsTreeNode* x);
+private:
+	OsTreeNode* root;
+};
+
+//中序遍历找秩（输出的位置）为i的结点，以t->root做开始结点x
+//O(lgn)
+OsTreeNode* OsTree::OsSelect(OsTreeNode* x, int i)
+{
+	int r = x->left->size + 1;//r为x的秩,因为是按中序遍历确定的秩
 	if (r == i)
 	{
 		return x;
 	}
-	else if (r < i)
+	else if (i < r)
 	{
 		return OsSelect(x->left, i);
 	}
 	else
 	{
-		return OsSelect(x->right, i - r);
+		return OsSelect(x->right, i - r);//以x右子树为根的i-r个元素
+	}
+}
+
+//给定结点x寻找其秩(中序)
+//O(lgn)
+int OsTree::OsRank(OsTree* t, OsTreeNode* x)
+{
+	//计算x为根节点的左子树结点个数
+	int r = x->left->size + 1;
+	OsTreeNode* y = x;
+	while (y != t->root)
+	{
+		if (y == y->p->right)
+		{
+			r += y->p->left->size + 1;
+		}
+		y = y->p;
+	}
+	return r;
+}
+
+//区间树
+
+class IntervalTreeNode
+{
+private:
+	IntervalTreeNode* left, * right, * p, * tnull;
+	int max, low, high;
+public:
+	friend class IntervalTree;
+	bool operator!=(IntervalTreeNode* t)
+	{
+		if (max != t->max && low != t->low && high != t->high)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+};
+
+class IntervalTree
+{
+public:
+	friend class IntervalTree;
+	IntervalTreeNode* IntervalSerarch(IntervalTree t, IntervalTreeNode i);
+	bool Overlap(IntervalTreeNode i);
+private:
+	IntervalTreeNode* root;
+};
+
+bool IntervalTree::Overlap(IntervalTreeNode i)
+{
+	//不重叠
+	return false;
+	//重叠
+	return true;
+}
+
+//寻找与i重叠的区间x
+IntervalTreeNode* IntervalTree::IntervalSerarch(IntervalTree t, IntervalTreeNode i)
+{
+	IntervalTreeNode* x = t.root;
+	while (x != t.root->tnull && !Overlap(i))
+	{
+		if (x->left != t.root->tnull && x->left->max >= i.low)
+		{
+			x = x->left;
+		}
+		else
+		{
+			x = x->right;
+		}
+	}
+	return x;
+}
+
+//动态规划
+//钢条切割问题
+//递归自顶向下解法(效率很差，因为反复求解相同的子问题)
+//T(2^n)
+int CutRod(const int* p, const int n)
+{
+	if (n == 0)
+	{
+		return 0;
+	}
+	int q = INT_MIN;
+	for (int i = 0; i < n; ++i)
+	{
+		q = max(q, p[i] + CutRod(p, n - i - 1));
+	}
+	return q;
+}
+
+//动态规划的钢条切割问题
+//自顶向下加入“备忘”的解法
+
+int MemoizedCutRodAux(const int* p, const int n, int* r)
+{
+	int q = 0;
+	if (r[n - 1] >= 0)
+	{
+		return r[n - 1];
+	}
+	if (n == 0)
+	{
+		q = 0;
+	}
+	else
+	{
+		q = INT_MIN;
+		for (int i = 0; i < n; ++i)
+		{
+			q = max(q, p[i] + MemoizedCutRodAux(p, n - i - 1, r));
+		}
+	}
+	r[n - 1] = q;
+	return q;
+}
+
+int MemoizedCutRod(const int* p, const int n)
+{
+	int* r = new int[n];
+	for (int i = 0; i < n; ++i)
+	{
+		r[i] = -1;
+	}
+	return MemoizedCutRodAux(p, n, r);
+}
+
+//自底向上解法
+int BottomUpCutRod(const int* p, int n)
+{
+	++n;
+	int* r = new int[n];
+	r[0] = 0;
+	int q = 0;
+	for (int j = 1; j < n; ++j)
+	{
+		q = INT_MIN;
+		for (int i = 0; i < j; ++i)
+		{
+			q = max(q, p[i] + r[j - i - 1]);
+		}
+		r[j] = q;
+	}
+	return r[n - 1];
+}
+
+//钢条切割问题不仅给出最优解，也给出构成方式
+std::pair<int*, int*> ExtendedBottomUpCutRod(int* p, int n)
+{
+	++n;
+	int* r = new int[n];
+	int* s = new int[n];
+	s[0] = 0;
+	int q = 0;
+	r[0] = 0;
+	for (int i = 1; i < n; ++i)
+	{
+		q = INT_MIN;
+		for (int j = 0; j < i; ++j)
+		{
+			if (q < p[j] + r[i - j - 1])
+			{
+				q = p[j] + r[i - j - 1];
+				s[i] = j + 1;
+			}
+		}
+		r[i] = q;
+	}
+	std::pair<int*, int*> pp{ r,s };
+	return pp;
+}
+
+void PrintCutRodSolution(int* p, int n)
+{
+	int* r = ExtendedBottomUpCutRod(p, n).first;
+	int* s = ExtendedBottomUpCutRod(p, n).second;
+	std::cout << "收益:" << r[n] << std::endl;
+	while (n > 0)
+	{
+		std::cout << s[n];
+		n = n - s[n];
+		std::cout << std::endl;
 	}
 }
 
@@ -746,6 +944,12 @@ int main(int argc, char* argv[])
 	cout << b.minNode(b.getRoot())->key << " " << b.maxNode(b.getRoot())->key << endl;
 	b.deleteSearch(6);
 	b.inOrder(b.getRoot());*/
+
+	int p[10]{ 1,5,8,9,10,17,17,20,24,30 };
+	std::cout << CutRod(p, 7);
+	std::cout << MemoizedCutRod(p, 4);
+	std::cout << BottomUpCutRod(p, 10);
+	PrintCutRodSolution(p, 7);
 
 
 

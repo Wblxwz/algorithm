@@ -12,8 +12,11 @@ using std::cin;
 using std::cout;
 using std::endl;
 
-#define ROWS 3
-#define SIZE 10
+//尽量以const替换#define宏
+//大写名称通常用于宏，这里不应用大写，暂时不改了
+//常量定义式通常放在头文件里
+const int ROWS = 3;
+const int SIZE = 10;
 
 template<typename T, typename U>
 inline void print(T* a, const U& n)
@@ -245,6 +248,15 @@ public:
 		return this->matrix;
 	}
 private:
+	//代替#define宏，作用域在类内，必须用static const(应该放在头文件内)
+	//当static const int(bool，char)在一起时为声明式而非定义式
+	//取地址时必须有定义式
+	//in-class初值设定只允许整数常量使用
+	//整数常量也会被别人用指针or引用获取,#define enum都不能被取地址
+	static const int ROWS = 3;
+	//the enum hack补偿，用来处理static const无法使用的情况
+	//enum更像#define
+	enum { ROWS = 3 };
 	int rows = 0;
 	//int cols = 0;
 	//动态创建二维数组
