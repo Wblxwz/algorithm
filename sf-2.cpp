@@ -905,6 +905,59 @@ void PrintCutRodSolution(int* p, int n)
 	}
 }
 
+//矩阵链除法
+std::pair<int**, int**> MaxtrixChainOrder(int* p, const int& len)
+{
+	int n = len + 1;
+	int** m = new int* [n];
+	for (int i = 0; i < n; ++i)
+	{
+		m[i] = new int[n];
+	}
+	int** s = new int* [n];
+	for (int i = 0; i < n; ++i)
+	{
+		s[i] = new int[n];
+	}
+	for (int i = 1; i < n; ++i)
+	{
+		m[i][i] = 0;
+	}
+	for (int l = 2; l <= n - 1; ++l)
+	{
+		for (int i = 1; i <= n - l; ++i)
+		{
+			int j = i + l - 1;
+			m[i][j] = INT_MAX;
+			for (int k = i; k <= j - 1; ++k)
+			{
+				int q = m[i][k] + m[k + 1][j] + p[i - 1] * p[k] * p[j];
+				if (q < m[i][j])
+				{
+					m[i][j] = q;
+					s[i][j] = k;
+				}
+			}
+		}
+	}
+	return 	std::pair<int**, int**>(m, s);
+}
+
+void PrintOptimalParens(int** s, const int i, const int j)
+{
+	if (i == j)
+	{
+		std::cout << "A" << i;
+	}
+	else
+	{
+		std::cout << "(";
+		PrintOptimalParens(s, i, s[i][j]);
+		PrintOptimalParens(s, s[i][j] + 1, j);
+		std::cout << ")";
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	/*DoubleList* l = new DoubleList;
@@ -945,11 +998,11 @@ int main(int argc, char* argv[])
 	b.deleteSearch(6);
 	b.inOrder(b.getRoot());*/
 
-	int p[10]{ 1,5,8,9,10,17,17,20,24,30 };
+	/*int p[10]{ 1,5,8,9,10,17,17,20,24,30 };
 	std::cout << CutRod(p, 7);
 	std::cout << MemoizedCutRod(p, 4);
 	std::cout << BottomUpCutRod(p, 10);
-	PrintCutRodSolution(p, 7);
+	PrintCutRodSolution(p, 8);*/
 
 
 
