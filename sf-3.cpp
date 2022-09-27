@@ -51,9 +51,9 @@ int Duplicate(int* p, const int len)
 	return -1;
 }
 
-//不修改数组的情况下找出（并非所有）重复的数字,范围是1~n-1
+//不修改数组的情况下找出任意（并非所有!）重复的数字,范围是1~n-1
 //可以使用辅助数组 O(n)的辅助存储空间
-//不使用辅助空间
+//不使用辅助空间时类似二分查找
 //时间复杂度O(nlogn)
 
 int CountRange(const int* p, const int len, const int start, const int end)
@@ -86,7 +86,7 @@ int GetDuplication(const int* p, const int len)
 		//右移一位，即除2
 		int mid = ((end - start) >> 1) + start;
 		int count = CountRange(p, len, start, mid);
-		if (end == count)
+		if (end == start)
 		{
 			if (count > 1)
 			{
@@ -97,7 +97,7 @@ int GetDuplication(const int* p, const int len)
 				break;
 			}
 		}
-		if (count > (mid - start) >> 1)
+		if (count > (mid - start) + 1)
 		{
 			end = mid;
 		}
@@ -108,6 +108,34 @@ int GetDuplication(const int* p, const int len)
 	}
 	return -1;
 }
+
+//二分查找
+template<typename T>
+T BinarySerach(T* a, int start, int end, int key)
+{
+	int ret = -1;
+	while (start <= end)
+	{
+		//防止直接除溢出？
+		int mid = ((end - start) >> 1) + start;
+		if (a[mid] < key)
+		{
+			start = mid + 1;
+		}
+		else if (a[mid] > key)
+		{
+			end = mid - 1;
+		}
+		else
+		{
+			ret = mid;
+			break;
+		}
+	}
+	return ret;
+}
+
+//二维数组（左到右递增，上到下递增）判断是否含有指定的整数
 
 
 //最长公共子序列
@@ -189,9 +217,17 @@ int main(int argc, char* argv[])
 	double d1 = 1.1, d2 = 2.2;
 	Swap(d1, d2);*/
 
-	string x = "abcd";
+	/*string x = "abcd";
 	string y = "abce";
-	PrintLcs(LcsLength(x, y).first, x, 4, 4);
+	PrintLcs(LcsLength(x, y).first, x, 4, 4);*/
+
+	/*int* a = new int[10];
+	for (int i = 0; i < 10; ++i)
+	{
+		a[i] = i + 1;
+	}
+	std::cout << BinarySerach(a, 0, 9, 1);
+	delete[]a;*/
 
 	return 0;
 }
