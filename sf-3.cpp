@@ -136,6 +136,32 @@ T BinarySerach(T* a, int start, int end, int key)
 }
 
 //二维数组（左到右递增，上到下递增）判断是否含有指定的整数
+bool Find(int** matrix, int rows, int columns, int number)
+{
+	bool found = false;
+	if (matrix != nullptr && rows > 0 && columns > 0)
+	{
+		int row = 0;
+		int column = columns - 1;
+		while (row < rows && column >= 0)
+		{
+			if (matrix[row][column] == number)
+			{
+				found = true;
+				break;
+			}
+			else if (matrix[row][column] > number)
+			{
+				--column;
+			}
+			else
+			{
+				++row;
+			}
+		}
+	}
+	return found;
+}
 
 
 //最长公共子序列
@@ -210,6 +236,49 @@ void PrintLcs(int** b, string x, const int i, const int j)
 	}
 }
 
+//将字符串中的空格改为%20
+void ReplaceBlank(char* s, int length)
+{
+	if (s == nullptr || length <= 0)
+	{
+		return;
+	}
+	int originallength = 0;
+	int numberofblank = 0;
+	int i = 0;
+	while (s[i] != '\0')
+	{
+		++originallength;
+		if (s[i] == ' ')
+		{
+			++numberofblank;
+		}
+		++i;
+	}
+	int newlength = originallength + 2 * numberofblank;
+	//length是数组总容量[最大]
+	if (newlength > length)
+	{
+		return;
+	}
+	int indexoforiginal = originallength;
+	int indexofnew = newlength;
+	while (indexoforiginal >= 0 && indexofnew > indexoforiginal)
+	{
+		if (s[indexoforiginal] == ' ')
+		{
+			s[indexofnew--] = '0';
+			s[indexofnew--] = '2';
+			s[indexofnew--] = '%';
+		}
+		else
+		{
+			s[indexofnew--] = s[indexoforiginal];
+		}
+		--indexoforiginal;
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	/*int p[7]{ 2,3,1,0,2,5,3 };
@@ -228,6 +297,49 @@ int main(int argc, char* argv[])
 	}
 	std::cout << BinarySerach(a, 0, 9, 1);
 	delete[]a;*/
+
+	/*int** a = new int* [4];
+	for (int i = 0; i < 4; ++i)
+	{
+		a[i] = new int[4];
+	}
+	int cnt = 1;
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			a[i][j] = cnt++;
+		}
+	}
+	for (int i = 0; i < 4; ++i)
+	{
+		for (int j = 0; j < 4; ++j)
+		{
+			cout << a[i][j] << "\t";
+		}
+		cout << endl;
+	}
+	cout << Find(a, 4, 4, 15);
+	for (int i = 0; i < 4; ++i)
+	{
+		delete []a[i];
+	}
+	delete[]a;*/
+
+	//s[]是初始化在栈上的数组，是可写的，*s指向字面值常量必须是const的，字面值常量是常量
+	//多余的char被初始化为'\0'
+	char s[50] = "hello world!";
+	ReplaceBlank(s, 50);
+	/*for (int i = 0; i < 50; ++i)
+	{
+		cout << s[i];
+	}*/
+	int i = 0;
+	while (s[i] != '\0')
+	{
+		cout << s[i];
+		++i;
+	}
 
 	return 0;
 }
