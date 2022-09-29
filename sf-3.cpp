@@ -1,5 +1,6 @@
 #include <iostream>
 #include <typeinfo>
+#include <stack>
 
 using std::cin;
 using std::cout;
@@ -279,6 +280,135 @@ void ReplaceBlank(char* s, int length)
 	}
 }
 
+struct ListNode
+{
+	int data;
+	ListNode* next;
+};
+
+
+void AddToTail(ListNode** head, const int& value)
+{
+	//自定义类new最好加括号
+	ListNode* node = new ListNode();
+	node->data = value;
+	node->next = nullptr;
+	if (*head == nullptr)
+	{
+		*head = node;
+	}
+	else
+	{
+		ListNode* phead = *head;
+		while (phead->next != nullptr)
+		{
+			phead = phead->next;
+		}
+		phead->next = node;
+	}
+}
+
+void RemoveNode(ListNode** head, const int& value)
+{
+	if (*head == nullptr || head == nullptr)
+	{
+		return;
+	}
+	ListNode* node = *head;
+	if (node->data == value)
+	{
+		*head = node->next;
+		delete node;
+	}
+	else
+	{
+		while (node->next != nullptr)
+		{
+			if (node->next->data == value)
+			{
+				ListNode* p = node->next;
+				node->next = p->next;
+				delete p;
+				break;
+			}
+			node = node->next;
+		}
+	}
+}
+
+void PrintListNode(ListNode** head)
+{
+	if (head == nullptr || *head == nullptr)
+	{
+		return;
+	}
+	ListNode* node = *head;
+	while (node != nullptr)
+	{
+		cout << node->data << " ";
+		node = node->next;
+	}
+}
+
+//从尾到头打印链表,可以改变链表指针顺序，也可以用利用栈的性质
+ListNode* Reversal(ListNode* head)
+{
+	if (head == nullptr || head->next == nullptr)
+	{
+		return head;
+	}
+	else
+	{
+		ListNode* begin = nullptr, * mid = head, * end = head->next;
+		while (true)
+		{
+			mid->next = begin;
+			if (end == nullptr)
+			{
+				break;
+			}
+			begin = mid;
+			mid = end;
+			end = end->next;
+		}
+		head = mid;
+		return head;
+	}
+}
+
+void PrintTailToHead(ListNode** head)
+{
+	if (*head == nullptr)
+	{
+		return;
+	}
+	std::stack<ListNode*> stack;
+	ListNode* node = *head;
+	while (node != nullptr)
+	{
+		stack.push(node);
+		node = node->next;
+	}
+	while (!stack.empty())
+	{
+		ListNode* node = stack.top();
+		cout << node->data << " ";
+		stack.pop();
+	}
+}
+//从尾到头打印链表递归版,可能导致函数调用栈的溢出(利用用户栈的性质)
+void PrintTailToHeadRecursion(ListNode** head)
+{
+	if (*head != nullptr)
+	{
+		if ((*head)->next != nullptr)
+		{
+			PrintTailToHeadRecursion(&(*head)->next);
+		}
+		cout << (*head)->data << " ";
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	/*int p[7]{ 2,3,1,0,2,5,3 };
@@ -328,18 +458,33 @@ int main(int argc, char* argv[])
 
 	//s[]是初始化在栈上的数组，是可写的，*s指向字面值常量必须是const的，字面值常量是常量
 	//多余的char被初始化为'\0'
-	char s[50] = "hello world!";
-	ReplaceBlank(s, 50);
-	/*for (int i = 0; i < 50; ++i)
-	{
-		cout << s[i];
-	}*/
-	int i = 0;
-	while (s[i] != '\0')
-	{
-		cout << s[i];
-		++i;
-	}
+	//char s[50] = "hello world!";
+	//ReplaceBlank(s, 50);
+	///*for (int i = 0; i < 50; ++i)
+	//{
+	//	cout << s[i];
+	//}*/
+	//int i = 0;
+	//while (s[i] != '\0')
+	//{
+	//	cout << s[i];
+	//	++i;
+	//}
+
+	ListNode* p = new ListNode();
+	p->data = 1;
+	ListNode** head = &p;
+	AddToTail(head, 2);
+	AddToTail(head, 3);
+	AddToTail(head, 4);
+	AddToTail(head, 5);
+	/*PrintListNode(head);
+	RemoveNode(head, 3);
+	PrintListNode(head);*/
+	//PrintTailToHead(head);
+	//PrintTailToHeadRecursion(head);
+	ListNode* l = Reversal(*head);
+	PrintListNode(&l);
 
 	return 0;
 }
