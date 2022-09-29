@@ -1,11 +1,13 @@
 #include <iostream>
 #include <typeinfo>
 #include <stack>
+#include <vector>
 
 using std::cin;
 using std::cout;
 using std::endl;
 using std::string;
+using std::vector;
 
 template<typename T>
 bool Swap(T& t1, T& t2)
@@ -166,68 +168,64 @@ bool Find(int** matrix, int rows, int columns, int number)
 
 
 //最长公共子序列
-std::pair<int**, int**> LcsLength(string x, string y)
+vector<vector<int>> LcsLength(const string& x, const string& y)
 {
-	size_t m = x.length();
-	size_t n = y.length();
-	++m;
-	++n;
-	x = " " + x;
-	y = " " + y;
-	int** b = new int* [m];
+	size_t m = x.length(), n = y.length();
+	vector<vector<int>> b(m);
 	for (int i = 0; i < m; ++i)
 	{
-		b[i] = new int[n];
+		b[i].resize(n);
 	}
-	int** c = new int* [m];
-	for (int i = 0; i < n; ++i)
+	vector<vector<int>> c(m + 1);
+	for (int i = 0; i < m + 1; ++i)
 	{
-		c[i] = new int[n];
+		c[i].resize(n + 1);
 	}
-	for (int i = 0; i < m; ++i)
+	for (int i = 1; i <= m; ++i)
 	{
 		c[i][0] = 0;
 	}
-	for (int i = 1; i < m; ++i)
+	for (int j = 0; j <= n; ++j)
 	{
-		c[0][i] = 0;
+		c[0][j] = 0;
 	}
-	for (int i = 1; i < m; ++i)
+	for (size_t i = 1; i <= m; ++i)
 	{
-		for (int j = 1; j < n; ++j)
+		for (size_t j = 1; j <= n; ++j)
 		{
-			if (x[i] == y[j])
+			if (x[i - 1] == y[j - 1])
 			{
 				c[i][j] = c[i - 1][j - 1] + 1;
-				b[i][j] = '↖';
+				b[i - 1][j - 1] = '↖';
 			}
 			else if (c[i - 1][j] >= c[i][j - 1])
 			{
 				c[i][j] = c[i - 1][j];
-				b[i][j] = '↑';
+				b[i - 1][j - 1] = '↑';
 			}
+			//else上面条件都不为真时执行
 			else
 			{
 				c[i][j] = c[i][j - 1];
-				b[i][j] = '←';
+				b[i - 1][j - 1] = '←';
 			}
 		}
 	}
-	return std::pair<int**, int**>(b, c);
+	return b;
 }
 
-void PrintLcs(int** b, string x, const int i, const int j)
+void PrintLcs(const vector<vector<int>>& b, const string& x, const size_t& i, const size_t& j)
 {
 	if (i == 0 || j == 0)
 	{
 		return;
 	}
-	if (b[i][j] == '↖')
+	if (b[i - 1][j - 1] == '↖')
 	{
 		PrintLcs(b, x, i - 1, j - 1);
-		cout << x[size_t(i) - 1];
+		cout << x[i - 1];
 	}
-	else if (b[i][j] == '↑')
+	else if (b[i - 1][j - 1] == '↑')
 	{
 		PrintLcs(b, x, i - 1, j);
 	}
@@ -409,6 +407,9 @@ void PrintTailToHeadRecursion(ListNode** head)
 	}
 }
 
+//最优二叉搜索树(期望搜索代价最小的二叉树)
+
+
 int main(int argc, char* argv[])
 {
 	/*int p[7]{ 2,3,1,0,2,5,3 };
@@ -416,9 +417,10 @@ int main(int argc, char* argv[])
 	double d1 = 1.1, d2 = 2.2;
 	Swap(d1, d2);*/
 
-	/*string x = "abcd";
-	string y = "abce";
-	PrintLcs(LcsLength(x, y).first, x, 4, 4);*/
+	/*string x = "ABCBDAB";
+	string y = "BDCABA";
+	vector<vector<int>> b = LcsLength(x, y);
+	PrintLcs(b, x, x.length(), y.length());*/
 
 	/*int* a = new int[10];
 	for (int i = 0; i < 10; ++i)
@@ -471,20 +473,22 @@ int main(int argc, char* argv[])
 	//	++i;
 	//}
 
-	ListNode* p = new ListNode();
-	p->data = 1;
-	ListNode** head = &p;
-	AddToTail(head, 2);
-	AddToTail(head, 3);
-	AddToTail(head, 4);
-	AddToTail(head, 5);
-	/*PrintListNode(head);
-	RemoveNode(head, 3);
-	PrintListNode(head);*/
-	//PrintTailToHead(head);
-	//PrintTailToHeadRecursion(head);
-	ListNode* l = Reversal(*head);
-	PrintListNode(&l);
+	//ListNode* p = new ListNode();
+	//p->data = 1;
+	//ListNode** head = &p;
+	//AddToTail(head, 2);
+	//AddToTail(head, 3);
+	//AddToTail(head, 4);
+	//AddToTail(head, 5);
+	///*PrintListNode(head);
+	//RemoveNode(head, 3);
+	//PrintListNode(head);*/
+	////PrintTailToHead(head);
+	////PrintTailToHeadRecursion(head);
+	//ListNode* l = Reversal(*head);
+	//PrintListNode(&l);
+
+
 
 	return 0;
 }
