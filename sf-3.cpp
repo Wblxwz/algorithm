@@ -410,6 +410,62 @@ void PrintTailToHeadRecursion(ListNode** head)
 //最优二叉搜索树(期望搜索代价最小的二叉树)
 
 
+//重建二叉树(根据前序遍历和中序遍历构建二叉树)
+struct BinaryTreeNode
+{
+	int value;
+	BinaryTreeNode* left;
+	BinaryTreeNode* right;
+};
+
+BinaryTreeNode* ConstructCore(int* startpreorder, int* endpreorder, int* startinorder, int* endinorder)
+{
+	int rootvalue = startpreorder[0];
+	BinaryTreeNode* root = new BinaryTreeNode();
+	root->value = rootvalue;
+	root->left = root->right = nullptr;
+	if (startpreorder == endpreorder)
+	{
+		if (startinorder == endinorder && *startpreorder == *startinorder)
+		{
+			return root;
+		}
+		else
+		{
+			throw "Invalid input";
+		}
+	}
+	int* rootinorder = startinorder;
+	while (rootinorder <= endinorder && *rootinorder != rootvalue)
+	{
+		++rootinorder;
+	}
+	if (rootinorder == endinorder && *rootinorder != rootvalue)
+	{
+		throw "Invalid input";
+	}
+	int leftlength = rootinorder - startinorder;
+	int* leftpreorderend = startpreorder + leftlength;
+	if (leftlength > 0)
+	{
+		root->left = ConstructCore(startpreorder + 1, leftpreorderend, startinorder, rootinorder - 1);
+	}
+	if (leftlength < endpreorder - startpreorder)
+	{
+		root->right = ConstructCore(leftpreorderend + 1, endpreorder, rootinorder + 1, endinorder);
+	}
+	return root;
+}
+
+BinaryTreeNode* Construct(int* preorder, int* inorder, int length)
+{
+	if (preorder == nullptr || inorder == nullptr || length == 0)
+	{
+		return nullptr;
+	}
+	return ConstructCore(preorder, preorder + length - 1, inorder, inorder + length - 1);
+}
+
 int main(int argc, char* argv[])
 {
 	/*int p[7]{ 2,3,1,0,2,5,3 };
