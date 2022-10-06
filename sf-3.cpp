@@ -457,6 +457,7 @@ struct BinaryTreeNode
 	int value;
 	BinaryTreeNode* left;
 	BinaryTreeNode* right;
+	BinaryTreeNode* parent;
 };
 
 BinaryTreeNode* ConstructCore(int* startpreorder, int* endpreorder, int* startinorder, int* endinorder)
@@ -505,6 +506,37 @@ BinaryTreeNode* Construct(int* preorder, int* inorder, int length)
 		return nullptr;
 	}
 	return ConstructCore(preorder, preorder + length - 1, inorder, inorder + length - 1);
+}
+
+//二叉树的下一个结点
+BinaryTreeNode* GetNext(BinaryTreeNode* pnode)
+{
+	if (pnode == nullptr)
+	{
+		return nullptr;
+	}
+	BinaryTreeNode* pnext = nullptr;
+	if (pnode->right != nullptr)
+	{
+		BinaryTreeNode* pright = pnode->right;
+		while (pright->left != nullptr)
+		{
+			pright = pright->left;
+		}
+		pnext = pright;
+	}
+	else if (pnode->parent != nullptr)
+	{
+		BinaryTreeNode* pparent = pnode->parent;
+		BinaryTreeNode* pcurrent = pnode;
+		while (pparent != nullptr && pcurrent == pparent->right)
+		{
+			pcurrent = pparent;
+			pparent = pparent->parent;
+		}
+		pnext = pparent;
+	}
+	return pnext;
 }
 
 int main(int argc, char* argv[])
