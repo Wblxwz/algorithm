@@ -539,6 +539,95 @@ BinaryTreeNode* GetNext(BinaryTreeNode* pnode)
 	return pnext;
 }
 
+//用两个栈实现队列
+template<typename T>
+class CQueue
+{
+public:
+	CQueue(void);
+	~CQueue(void);
+	void appendTail(const T& node);
+	T deleteHead();
+private:
+	std::stack<T> stack1;
+	std::stack<T> stack2;
+};
+
+template<typename T>
+void CQueue<T>::appendTail(const T& node)
+{
+	stack1.push(node);
+}
+template<typename T>
+T CQueue<T>::deleteHead()
+{
+	if (stack2.size() <= 0)
+	{
+		while (stack1.size() > 0)
+		{
+			T& data = stack1.top();
+			//pop不返回栈顶值
+			stack1.pop();
+			stack2.push(data);
+		}
+	}
+	if (stack2.size() == 0)
+	{
+		throw new std::exception("queue is empty");
+	}
+	T head = stack2.pop();
+	stack2.pop();
+	return head;
+}
+
+//可以使用递归解循环问题
+int AddFrom1ToN(int n)
+{
+	return n <= 0 ? 0 : AddFrom1ToN(n - 1);
+}
+
+//递归速度慢且存在栈溢出风险
+//采用动态规划及贪心算法
+//动态规划解斐波那契数列 O(n)
+long long Fibonacci(unsigned n)
+{
+	int result[2] = { 0,1 };
+	if (n < 2)
+	{
+		return result[n];
+	}
+	long long fibNMinusOne = 1;
+	long long fibNMinusTwo = 0;
+	long long fibN = 0;
+	for (unsigned int i = 2; i <= n; ++i)
+	{
+		fibN = fibNMinusOne + fibNMinusTwo;
+		fibNMinusTwo = fibNMinusOne;
+		fibNMinusOne = fibN;
+	}
+	return fibN;
+}
+
+//青蛙跳台阶
+long long Jump(int n)
+{
+	int result[3] = { 0,1,2 };
+	if (n < 3)
+	{
+		return result[n];
+	}
+	long long Min = 1;
+	long long Max = 2;
+	long long Return = 0;
+	for (unsigned i = 3; i <= n; ++i)
+	{
+		Return = Min + Max;
+		Min = Max;
+		Max = Return;
+	}
+	return Return;
+}
+
 int main(int argc, char* argv[])
 {
 	/*int p[7]{ 2,3,1,0,2,5,3 };
