@@ -792,6 +792,52 @@ int ArrayMin(int* nums, int length)
 	return nums[mid];
 }
 
+struct Action
+{
+	int s;
+	int f;
+};
+
+//活动排序问题 贪心算法 O(n) || O(nlogn)
+void GreedyActivitySelect(int* s, int* f, int n, bool* x)
+{
+	//假定已经排好序
+	x[0] = true;
+	int k = 0;
+	for (int i = 1; i <= n; ++i)
+	{
+		if (s[i] >= f[k])
+		{
+			x[i] = true;
+			k = i;
+		}
+	}
+}
+
+bool Cmp(const Action& a, const Action& b)
+{
+	if (a.f <= b.f)
+	{
+		return true;
+	}
+	return false;
+}
+
+void GreedyActionSelectSort(Action* a, int n, bool* x)
+{
+	std::sort(a, a + n, Cmp);
+	x[0] = true;
+	int k = 0;
+	for (int i = 1; i <= n; ++i)
+	{
+		if (a[i].s >= a[k].f)
+		{
+			x[i] = true;
+			k = i;
+		}
+	}
+}
+
 int main(int argc, char* argv[])
 {
 	/*int p[7]{ 2,3,1,0,2,5,3 };
@@ -879,6 +925,22 @@ int main(int argc, char* argv[])
 
 	/*int data[5] = { 2,3,5,7,8 };
 	cout << BinarySearch(data, 5, 5);*/
+
+	//假定活动已按结束时间排好序
+	int s[11] = { 1,3,0,5,3,5,6,8,8,2,12 };
+	int f[11] = { 4,5,6,7,9,9,10,11,12,14,16 };
+	bool x[11];
+	GreedyActivitySelect(s, f, 11, x);
+	//Action a[11];
+	//init
+	//GreedyActionSelectSort()
+	for (int i = 0; i < 11; ++i)
+	{
+		if (x[i] == true)
+		{
+			cout << i << " ";
+		}
+	}
 
 	return 0;
 }
