@@ -2,6 +2,7 @@
 #include <typeinfo>
 #include <stack>
 #include <vector>
+#include <random>
 
 using std::cin;
 using std::cout;
@@ -608,13 +609,13 @@ long long Fibonacci(unsigned n)
 	return fibN;
 }
 
-//青蛙跳台阶
+//青蛙跳台阶,典型的Fibonacci数列
 long long Jump(int n)
 {
-	int result[3] = { 0,1,2 };
+	int DP[3] = { 0,1,2 };
 	if (n < 3)
 	{
-		return result[n];
+		return DP[n];
 	}
 	long long Min = 1;
 	long long Max = 2;
@@ -626,6 +627,169 @@ long long Jump(int n)
 		Max = Return;
 	}
 	return Return;
+}
+
+//已排序或部分排序的数组都可以尝试二分查找
+int BinarySearch(int* nums, int length, int x)
+{
+	int first = 0;
+	int end = length - 1;
+	int mid = 0;
+	while (first <= end)
+	{
+		if (nums[mid] == x)
+		{
+			return mid;
+		}
+		mid = (end - first) + first / 2;
+		if (nums[mid] < x)
+		{
+			first = mid + 1;
+		}
+		else if (nums[mid] > x)
+		{
+			end = mid - 1;
+		}
+	}
+	return -1;
+}
+
+//生成范围内的一个随机数
+int RandomInRange(int start, int end)
+{
+	if (start < 0 || start > end)
+	{
+		throw new std::exception("Invalid Parameters");
+	}
+	std::default_random_engine e;
+	std::uniform_int_distribution<int> u(start, end);
+	e.seed(time(0));
+	return u(e);
+}
+
+//快排
+int Partition(int* data, int length, int start, int end)
+{
+	if (data == nullptr || length <= 0 || start < 0 || end >= length)
+	{
+		throw new std::exception("Invalid Parameters");
+	}
+	int index = RandomInRange(start, end);
+	Swap(data[index], data[end]);
+	int small = start - 1;
+	for (index = start; index < end; ++index)
+	{
+		if (data[index] < data[end])
+		{
+			++small;
+			if (small != index)
+			{
+				Swap(data[small], data[index]);
+			}
+		}
+	}
+	++small;
+	Swap(data[small], data[end]);
+	return small;
+}
+//如果已排好序为O(n^2),一般为O(nlogn)
+void QuickSort(int* data, int length, int start, int end)
+{
+	if (start == end)
+	{
+		return;
+	}
+	int index = Partition(data, length, start, end);
+	if (index > start)
+	{
+		QuickSort(data, length, start, index - 1);
+	}
+	if (index < end)
+	{
+		QuickSort(data, length, index + 1, end);
+	}
+}
+
+//利用辅助空间对公司员工年龄排序
+void SortAges(int* ages, int length)
+{
+	if (ages == nullptr || length <= 0)
+	{
+		return;
+	}
+	const int oldestage = 99;
+	int timesofages[oldestage + 1];
+	for (int i = 0; i < oldestage + 1; ++i)
+	{
+		timesofages[i] = 0;
+	}
+	for (int i = 0; i < length; ++i)
+	{
+		int age = ages[i];
+		if (age < 0 || age > oldestage)
+		{
+			throw new std::exception("Invalid Parameters");
+		}
+		++timesofages[age];
+	}
+	int index = 0;
+	for (int i = 0; i < oldestage + 1; ++i)
+	{
+		for (int j = 0; j < timesofages[i]; ++j)
+		{
+			ages[index] = i;
+			++index;
+		}
+	}
+}
+
+int MinInOrder(int* nums, int first, int end)
+{
+	int min = nums[first];
+	for (int i = first + 1; i <= end; ++i)
+	{
+		if (nums[i] < min)
+		{
+			min = nums[i];
+		}
+	}
+	return min;
+}
+
+//旋转数组的最小数字
+int ArrayMin(int* nums, int length)
+{
+	if (nums == nullptr || length <= 0)
+	{
+		throw new std::exception("Invalid Parameters");
+	}
+	int first = 0;
+	int end = length - 1;
+	int mid = 0;
+	while (nums[first] >= nums[end])
+	{
+		if (end - first == 1)
+		{
+			mid = end;
+			break;
+		}
+		//防止加法溢出
+		mid = (end - first) + first / 2;
+		//三者相同此时只能顺序查找
+		if (nums[first] == nums[end] && nums[mid] == nums[first])
+		{
+			return MinInOrder(nums, first, end);
+		}
+		if (nums[mid] >= nums[first])
+		{
+			first = mid;
+		}
+		else if (nums[mid] <= nums[end])
+		{
+			end = mid;
+		}
+	}
+	return nums[mid];
 }
 
 int main(int argc, char* argv[])
@@ -706,7 +870,15 @@ int main(int argc, char* argv[])
 	//ListNode* l = Reversal(*head);
 	//PrintListNode(&l);
 
+	/*int data[5] = { 2,8,5,3,7 };
+	QuickSort(data, 5, 0, 4);
+	for (int i = 0; i < 5; ++i)
+	{
+		cout << data[i];
+	}*/
 
+	/*int data[5] = { 2,3,5,7,8 };
+	cout << BinarySearch(data, 5, 5);*/
 
 	return 0;
 }
