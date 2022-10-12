@@ -838,6 +838,51 @@ void GreedyActionSelectSort(Action* a, int n, bool* x)
 	}
 }
 
+//矩阵中的路径
+bool HasPathCore(const char* matrix, int rows, int cols, int row, int col, const char* str, int& pathlength, bool* visited)
+{
+	if (str[pathlength] == '\0')
+	{
+		return true;
+	}
+	bool haspath = false;
+	if (row >= 0 && row < rows && col >= 0 && col < cols && matrix[row & cols + col] == str[pathlength] && !visited[row * cols + col])
+	{
+		++pathlength;
+		visited[row * cols + col] = true;
+		haspath = HasPathCore(matrix, rows, cols, row, col - 1, str, pathlength, visited) || HasPathCore(matrix, rows, cols, row - 1, col, str, pathlength, visited) || HasPathCore(matrix, rows, cols, row, col + 1, str, pathlength, visited) || HasPathCore(matrix, rows, cols, row + 1, col, str, pathlength, visited);
+		if (!haspath)
+		{
+			--pathlength;
+			visited[row * cols + col] = false;
+		}
+	}
+	return haspath;
+}
+
+bool HasPath(char* matrix, size_t rows, size_t cols, char* str)
+{
+	if (matrix == nullptr || str == nullptr || rows <= 0 || cols <= 0)
+	{
+		return false;
+	}
+	bool* visted = new bool[rows * cols];
+	memset(visted, 0, rows * cols);
+	int pathlength = 0;
+	for (int row = 0; row < rows; ++row)
+	{
+		for (int col = 0; col < cols; ++col)
+		{
+			if (HasPathCore(matrix, rows, cols, row, col, str, pathlength, visted))
+			{
+				return true;
+			}
+		}
+	}
+	delete[] visted;
+	return false;
+}
+
 int main(int argc, char* argv[])
 {
 	/*int p[7]{ 2,3,1,0,2,5,3 };
@@ -927,20 +972,20 @@ int main(int argc, char* argv[])
 	cout << BinarySearch(data, 5, 5);*/
 
 	//假定活动已按结束时间排好序
-	int s[11] = { 1,3,0,5,3,5,6,8,8,2,12 };
-	int f[11] = { 4,5,6,7,9,9,10,11,12,14,16 };
-	bool x[11];
-	GreedyActivitySelect(s, f, 11, x);
-	//Action a[11];
-	//init
-	//GreedyActionSelectSort()
-	for (int i = 0; i < 11; ++i)
-	{
-		if (x[i] == true)
-		{
-			cout << i << " ";
-		}
-	}
+	//int s[11] = { 1,3,0,5,3,5,6,8,8,2,12 };
+	//int f[11] = { 4,5,6,7,9,9,10,11,12,14,16 };
+	//bool x[11];
+	//GreedyActivitySelect(s, f, 11, x);
+	////Action a[11];
+	////init
+	////GreedyActionSelectSort()
+	//for (int i = 0; i < 11; ++i)
+	//{
+	//	if (x[i] == true)
+	//	{
+	//		cout << i << " ";
+	//	}
+	//}
 
 	return 0;
 }
