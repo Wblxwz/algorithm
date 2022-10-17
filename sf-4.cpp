@@ -1,5 +1,9 @@
 #include <iostream>
 #include <cmath>
+#include <algorithm>
+#include <functional>
+#include <random>
+#include <time.h>
 
 using namespace std;
 
@@ -50,7 +54,85 @@ void KnapSack(int* weight, int* value, size_t bagweight, size_t n)
 	delete[]dp;
 }
 
+//降序快排
+int Random(int start, int end)
+{
+	default_random_engine e;
+	uniform_int_distribution<int> u(start, end);
+	e.seed(time(0));
+	return u(e);
+}
+
+int Paratiton(int* data, int n, int start, int end)
+{
+	if (data == nullptr || n <= 0 || start < 0 || end >= n)
+	{
+		throw new std::exception("Invalid Parameters");
+	}
+	int index = Random(start, end);
+	swap(data[index], data[end]);
+	int small = start - 1;
+	for (index = start; index < end; ++index)
+	{
+		if (data[index] > data[end])
+		{
+			++small;
+			if (small != index)
+			{
+				swap(data[small], data[index]);
+			}
+		}
+	}
+	++small;
+	swap(data[small], data[end]);
+	return small;
+}
+
+void QuickSort(int* data, int n, int start, int end)
+{
+	if (start == end)
+	{
+		return;
+	}
+	int index = Paratiton(data, n, start, end);
+	if (index > start)
+	{
+		QuickSort(data, n, start, index - 1);
+	}
+	if (start < end)
+	{
+		QuickSort(data, n, index + 1, end);
+	}
+}
+
 //完全背包问题 可以用贪心
+void GreedyKnapSack(int* value, int* weight, size_t bagwieght, size_t n)
+{
+	//按照单位重量降序排序
+	int* arr = new int[n];
+	for (int i = 0; i < n; ++i)
+	{
+		arr[i] = value[i] / weight[i];
+	}
+	QuickSort(arr, n, 0, n - 1);
+	int i = 0;
+	int v = 0;
+	//先全装进去
+	for (int i = 0; i < n; ++i)
+	{
+		if (weight[i] > bagwieght)
+		{
+			break;
+		}
+		v += value[i];
+		bagwieght -= weight[i];
+	}
+	if (i < n)
+	{
+		value += value[i] * (bagwieght / weight[i]);
+	}
+	cout << v;
+}
 
 //机器人运动范围
 
@@ -169,6 +251,7 @@ int main(int argc, char* argv[])
 	int weight[3] = { 1,3,4 };
 	int value[3] = { 15,20,30 };
 	int bagweight = 4;
-	KnapSack(weight, value, bagweight, 3);
+	//KnapSack(weight, value, bagweight, 3);
+	GreedyKnapSack(value, weight, bagweight, 3);
 	return 0;
 }
