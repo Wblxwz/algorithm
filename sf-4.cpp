@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -50,6 +51,118 @@ void KnapSack(int* weight, int* value, size_t bagweight, size_t n)
 }
 
 //完全背包问题 可以用贪心
+
+//机器人运动范围
+
+int GetDigitSum(int number)
+{
+	int sum = 0;
+	while (sum >= 0)
+	{
+		sum += sum % 10;
+		sum /= 10;
+	}
+	return sum;
+}
+
+bool Check(int threshold, size_t row, size_t col, size_t rows, size_t cols, bool* visted)
+{
+	if (row > 0 && row < rows && col > 0 && col < cols && GetDigitSum(row) + GetDigitSum(col) <= threshold && !visted[row * cols + col])
+	{
+		return true;
+	}
+	return false;
+}
+
+int MovingCountCore(int threshold, size_t row, size_t col, size_t rows, size_t cols, bool* visted)
+{
+	int count = 0;
+	if (Check(threshold, row, col, rows, cols, visted))
+	{
+		visted[row * cols + col] = true;
+		count = 1 + MovingCountCore(threshold, row - 1, col, rows, cols, visted) + MovingCountCore(threshold, row + 1, col, rows, cols, visted) + MovingCountCore(threshold, row, col - 1, rows, cols, visted) + MovingCountCore(threshold, row, col + 1, rows, cols, visted);
+		return count;
+	}
+}
+
+int MovingCount(int threshold, size_t rows, size_t cols)
+{
+	if (threshold < 0 || rows <= 0 || cols <= 0)
+	{
+		return 0;
+	}
+	bool* visted = new bool[rows * cols];
+	for (int i = 0; i < rows * cols; ++i)
+	{
+		visted[i] = false;
+	}
+	int count = MovingCountCore(threshold, 0, 0, rows, cols, visted);
+	delete[] visted;
+	return count;
+}
+
+//剪绳子
+//动归
+int DPMaxProductAfterCutting(size_t length)
+{
+	if (length < 2)
+	{
+		return 0;
+	}
+	if (length == 2)
+	{
+		return 1;
+	}
+	if (length == 3)
+	{
+		return 2;
+	}
+	int* products = new int[length + 1];
+	products[0] = 0;
+	products[1] = 0;
+	products[2] = 1;
+	products[3] = 2;
+	int max = 0;
+	for (int i = 4; i <= length; ++i)
+	{
+		for (int j = 1; j <= i / 2; ++j)
+		{
+			int product = products[j] * products[i - j];
+			if (product > max)
+			{
+				max = product;
+			}
+			products[i] = max;
+		}
+	}
+	max = products[length];
+	delete[]products;
+	return max;
+}
+
+//贪心算法
+int GreedyMaxProductAfterCutting(size_t length)
+{
+	if (length < 2)
+	{
+		return 0;
+	}
+	if (length == 2)
+	{
+		return 1;
+	}
+	if (length == 3)
+	{
+		return 2;
+	}
+	size_t timesof3 = length / 3;
+	if (length - 3 * timesof3 == 1)
+	{
+		timesof3 -= 1;
+	}
+	size_t timesof2 = (length - 3 * timesof3) / 2;
+	return (int)pow(3, timesof3) * (int)pow(2, timesof2);
+}
 
 int main(int argc, char* argv[])
 {
