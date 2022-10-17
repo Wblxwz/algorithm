@@ -246,6 +246,73 @@ int GreedyMaxProductAfterCutting(size_t length)
 	return (int)pow(3, timesof3) * (int)pow(2, timesof2);
 }
 
+//正数右移补0，负数右移补1
+//除法效率要比移位慢得多
+
+//输出二进制中1的个数
+int NumberOf1(int n)
+{
+	int count = 0;
+	while (n)
+	{
+		++count;
+		//一个整数减去1后和自己与可以将最右侧的1变为0，所以有多少个1就能运行多少次
+		n = (n - 1) & n;
+	}
+	//这种return默认返回副本
+	//return不要返回指针或引用的local变量
+	return count;
+}
+
+//由于精度的问题，不能用等号判断两个小数是否相等
+//不能忽略边界及异常，做好参数检查、非法输入等
+//功能测试、边界测试、负面测试
+//可扩展性、可维护性
+
+//数值的整数次方
+
+double PowerWithUnsignedExponent(double base, unsigned exponent)
+{
+	if (exponent == 0)
+	{
+		return 1;
+	}
+	if (exponent == 1)
+	{
+		return base;
+	}
+	double result = PowerWithUnsignedExponent(base, exponent >> 1);
+	result *= result;
+	if ((exponent & 0x1) == 1)
+	{
+		result *= base;
+	}
+	return result;
+}
+
+bool invalidinput = false;
+
+double Power(double base, int exponent)
+{
+	invalidinput = false;
+	if ((base == 0.0) && exponent < 0)
+	{
+		invalidinput = true;
+		return 0.0;
+	}
+	unsigned int absexponent = (unsigned int)(exponent);
+	if (exponent < 0)
+	{
+		absexponent = (unsigned int)(-exponent);
+	}
+	double result = PowerWithUnsignedExponent(base, absexponent);
+	if (exponent < 0)
+	{
+		result = 1.0 / result;
+	}
+	return result;
+}
+
 int main(int argc, char* argv[])
 {
 	int weight[3] = { 1,3,4 };
