@@ -63,7 +63,7 @@ int Random(int start, int end)
 	return u(e);
 }
 
-int Paratiton(int* data, int n, int start, int end)
+int Partition(int* data, int n, int start, int end)
 {
 	if (data == nullptr || n <= 0 || start < 0 || end >= n)
 	{
@@ -94,7 +94,7 @@ void QuickSort(int* data, int n, int start, int end)
 	{
 		return;
 	}
-	int index = Paratiton(data, n, start, end);
+	int index = Partition(data, n, start, end);
 	if (index > start)
 	{
 		QuickSort(data, n, start, index - 1);
@@ -313,12 +313,68 @@ double Power(double base, int exponent)
 	return result;
 }
 
+//赫夫曼编码 贪心
+
+
+//打印从1到最大的n位数
+//考虑到大数问题使用字符串或数组解决
+
+void PrintNumber(char* number)
+{
+	bool isbeginning0 = true;
+	int nlength = strlen(number);
+	for (int i = 0; i < nlength; ++i)
+	{
+		if (isbeginning0 && number[i] != '0')
+		{
+			isbeginning0 = false;
+		}
+		if (!isbeginning0)
+		{
+			cout << number[i];
+		}
+	}
+	cout << "\t";
+}
+
+void Print1ToMaxOfNDigitsRecursively(char* number, int length, int index)
+{
+	if (index == length - 1)
+	{
+		PrintNumber(number);
+		return;
+	}
+	for (int i = 0; i < 10; ++i)
+	{
+		number[index + 1] = i + '0';
+		Print1ToMaxOfNDigitsRecursively(number, length, index + 1);
+	}
+}
+
+void Print1ToMaxOfNDigits(size_t n)
+{
+	if (n <= 0)
+	{
+		return;
+	}
+	//多放一个'\0'
+	char* number = new char[n + 1];
+	number[n] = '\0';
+	for (int i = 0; i < 10; ++i)
+	{
+		number[0] = i + '0';
+		Print1ToMaxOfNDigitsRecursively(number, n, 0);
+	}
+	delete[] number;
+}
+
 int main(int argc, char* argv[])
 {
-	int weight[3] = { 1,3,4 };
-	int value[3] = { 15,20,30 };
-	int bagweight = 4;
-	//KnapSack(weight, value, bagweight, 3);
-	GreedyKnapSack(value, weight, bagweight, 3);
+	//int weight[3] = { 1,3,4 };
+	//int value[3] = { 15,20,30 };
+	//int bagweight = 4;
+	////KnapSack(weight, value, bagweight, 3);
+	//GreedyKnapSack(value, weight, bagweight, 3);
+	Print1ToMaxOfNDigits(3);
 	return 0;
 }
