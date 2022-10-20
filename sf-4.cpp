@@ -4,6 +4,8 @@
 #include <functional>
 #include <random>
 #include <time.h>
+#include <vector>
+#include <queue>
 
 using namespace std;
 
@@ -314,10 +316,29 @@ double Power(double base, int exponent)
 }
 
 //赫夫曼编码 贪心
+template<class T>
+class MinHeap
+{
+public:
 
+private:
+
+};
+
+class Huffman
+{
+public:
+	Huffman() :name('\0'), weight(0), left(nullptr), right(nullptr) {};
+	~Huffman() = default;
+private:
+	char name;
+	int weight;
+	Huffman* left, * right;
+};
 
 //打印从1到最大的n位数
 //考虑到大数问题使用字符串或数组解决
+//其实就是全排列
 
 void PrintNumber(char* number)
 {
@@ -368,6 +389,92 @@ void Print1ToMaxOfNDigits(size_t n)
 	delete[] number;
 }
 
+//在O(1)时间内删除链表节点
+struct ListNode
+{
+	int data;
+	ListNode* next;
+};
+
+void DeleteNode(ListNode** head, ListNode* deleted)
+{
+	if (!head || !deleted)
+	{
+		return;
+	}
+	if (deleted->next != nullptr)
+	{
+		ListNode* node = deleted->next;
+		deleted->data = node->data;
+		deleted->next = node->next;
+		delete node;
+		node = nullptr;
+	}
+	else if (*head == deleted)
+	{
+		delete deleted;
+		deleted = nullptr;
+		*head = nullptr;
+	}
+	else
+	{
+		ListNode* node = *head;
+		while (node->next != deleted)
+		{
+			node = node->next;
+		}
+		node->next = nullptr;
+		delete deleted;
+		deleted = nullptr;
+	}
+}
+
+//删除排序的链表中重复的节点
+//因为head也可能被删除，所以使用**head
+void DeleteDuplication(ListNode** head)
+{
+	if (head == nullptr || *head == nullptr)
+	{
+		return;
+	}
+	ListNode* prenode = nullptr;
+	ListNode* node = *head;
+	while (node != nullptr)
+	{
+		ListNode* next = node->next;
+		bool needdelete = false;
+		if (next != nullptr && next->data == node->data)
+		{
+			needdelete = true;
+		}
+		if (!needdelete)
+		{
+			prenode = node;
+			node = node->next;
+		}
+		else
+		{
+			int data = node->data;
+			ListNode* tobedelete = node;
+			while (tobedelete != nullptr && tobedelete->data == data)
+			{
+				next = tobedelete->next;
+				delete tobedelete;
+				tobedelete = nullptr;
+				tobedelete = next;
+			}
+			if (prenode == nullptr)
+			{
+				*head = next;
+			}
+			else
+			{
+				prenode->next = next;
+			}
+			node = next;
+		}
+	}
+}
 int main(int argc, char* argv[])
 {
 	//int weight[3] = { 1,3,4 };
@@ -375,6 +482,7 @@ int main(int argc, char* argv[])
 	//int bagweight = 4;
 	////KnapSack(weight, value, bagweight, 3);
 	//GreedyKnapSack(value, weight, bagweight, 3);
-	Print1ToMaxOfNDigits(3);
+	//Print1ToMaxOfNDigits(3);
+
 	return 0;
 }
