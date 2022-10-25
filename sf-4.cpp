@@ -316,25 +316,98 @@ double Power(double base, int exponent)
 }
 
 //赫夫曼编码 贪心
-template<class T>
-class MinHeap
-{
-public:
-
-private:
-
-};
-
 class Huffman
 {
 public:
 	Huffman() :name('\0'), weight(0), left(nullptr), right(nullptr) {};
+	Huffman(const char name,const int weight, Huffman* left, Huffman* right) :name(name), weight(weight), left(left), right(right) {};
+	Huffman(const Huffman& h) :name(h.name), weight(h.weight), left(h.left), right(h.right) {};
+	char GetName()
+	{
+		return name;
+	}
+	int GetWeight()
+	{
+		return weight;
+	}
+	Huffman* GetLeft()
+	{
+		return left;
+	}
+	Huffman* GetRight()
+	{
+		return right;
+	}
+	void SetWeight(const int& weight)
+	{
+		this->weight = weight;
+	}
+	void SetLeft(Huffman *h)
+	{
+		this->left = h;
+	}
+	void SetRight(Huffman* h)
+	{
+		this->right = h;
+	}
 	~Huffman() = default;
 private:
 	char name;
 	int weight;
 	Huffman* left, * right;
 };
+
+void Sort(vector<Huffman*>& v)
+{
+	size_t n = v.size();
+	for (size_t i = 0; i < n - 1; ++i)
+	{
+		for (size_t j = 0; j < n - 1 - i; ++j)
+		{
+			if (v[j]->GetWeight() > v[j + 1]->GetWeight())
+			{
+				Huffman* temp = v[j];
+				v[j] = v[j + 1];
+				v[j + 1] = temp;
+			}
+		}
+	}
+}
+
+Huffman* Top(vector<Huffman*>& v)
+{
+	Sort(v);
+	Huffman* h = v[0];
+	v.erase(v.begin());
+	return h;
+}
+
+Huffman* HuffmanTree()
+{
+	Huffman* f = new Huffman('f', 5, nullptr, nullptr);
+	Huffman* e = new Huffman('e', 9, nullptr, nullptr);
+	Huffman* c = new Huffman('c', 12, nullptr, nullptr);
+	Huffman* b = new Huffman('b', 13, nullptr, nullptr);
+	Huffman* d = new Huffman('d', 16, nullptr, nullptr);
+	Huffman* a = new Huffman('a', 45, nullptr, nullptr);
+	vector<Huffman*> v;
+	v.push_back(f);
+	v.push_back(e);
+	v.push_back(c);
+	v.push_back(b);
+	v.push_back(d);
+	v.push_back(a);
+	size_t n = v.size();
+	for (size_t i = 0; i < n - 1; ++i)
+	{
+		Huffman *z = new Huffman(),*x(Top(v)),*y(Top(v));
+		z->SetLeft(x);
+		z->SetRight(y);
+		z->SetWeight(x->GetWeight() + y->GetWeight());
+		v.push_back(z);
+	}
+	return Top(v);
+}
 
 //打印从1到最大的n位数
 //考虑到大数问题使用字符串或数组解决
@@ -562,7 +635,8 @@ int main(int argc, char* argv[])
 	////KnapSack(weight, value, bagweight, 3);
 	//GreedyKnapSack(value, weight, bagweight, 3);
 	//Print1ToMaxOfNDigits(3);
-
+	/*Huffman *h = HuffmanTree();
+	cout << h->GetRight()->GetRight()->GetLeft()->GetWeight();*/
 
 	return 0;
 }
