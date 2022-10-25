@@ -475,6 +475,85 @@ void DeleteDuplication(ListNode** head)
 		}
 	}
 }
+
+//正则表达式匹配
+bool MatchCore(char* str, char* pattern)
+{
+	if (*str == '\0' && *pattern == '\0')
+	{
+		return true;
+	}
+	if (*str != '\0' && *pattern == '\0')
+	{
+		return false;
+	}
+	if (*(pattern + 1) == '*')
+	{
+		if (*pattern == *str || (*pattern == '.' && *str != '\0'))
+		{
+			return MatchCore(str + 1, pattern + 2) || MatchCore(str + 1, pattern) || MatchCore(str, pattern + 2);
+		}
+		else
+		{
+			return MatchCore(str, pattern + 2);
+		}
+	}
+	if (*str == *pattern || (*pattern == '.' && *str != '\0'))
+	{
+		return MatchCore(str + 1, pattern + 1);
+	}
+}
+
+bool Match(char* str, char* pattern)
+{
+	if (str == nullptr || pattern == nullptr)
+	{
+		return false;
+	}
+	return MatchCore(str, pattern);
+}
+
+//表示数值的字符串
+
+bool ScanUnsignedInteger(const char** str)
+{
+	const char* before = *str;
+	while (**str != '\0' && **str >= '0' && **str <= '9')
+	{
+		++(*str);
+	}
+	return *str > before;
+}
+
+bool ScanInteger(const char** str)
+{
+	if (**str == '+' || **str == '-')
+	{
+		++(*str);
+	}
+	return ScanUnsignedInteger(str);
+}
+
+bool IsNumber(const char* str)
+{
+	if (str == nullptr)
+	{
+		return false;
+	}
+	bool numeric = ScanInteger(&str);
+	if (*str == '.')
+	{
+		++str;
+		numeric = ScanUnsignedInteger(&str) || numeric;
+	}
+	if (*str == 'e' || *str == 'E')
+	{
+		++str;
+		numeric = numeric || ScanInteger(&str);
+	}
+	return numeric && *str == '\0';
+}
+
 int main(int argc, char* argv[])
 {
 	//int weight[3] = { 1,3,4 };
@@ -483,6 +562,7 @@ int main(int argc, char* argv[])
 	////KnapSack(weight, value, bagweight, 3);
 	//GreedyKnapSack(value, weight, bagweight, 3);
 	//Print1ToMaxOfNDigits(3);
+
 
 	return 0;
 }
