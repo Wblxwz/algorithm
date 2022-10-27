@@ -635,6 +635,48 @@ bool IsNumber(const char* str)
 //不同点在于B树可以有很多孩子，红黑树是二叉树
 //
 
+//调整数组顺序使奇数位于偶数前面
+//类似策略模式的函数写法
+
+bool IsEvent(int n)
+{
+	return (n % 2 == 0);
+}
+
+void Reorder(int* data, size_t n, bool(*func)(int))
+{
+	if (data == nullptr || n == 0)
+	{
+		return;
+	}
+	int* begin = new int;
+	begin = data;
+	int* end = new int;
+	end = data + n - 1;
+	while (begin < end)
+	{
+		while ((begin < end) && !func(*begin))
+		{
+			++begin;
+		}
+		while ((begin < end) && func(*end))
+		{
+			--end;
+		}
+		if (begin < end)
+		{
+			int temp = *begin;
+			*begin = *end;
+			*end = temp;
+		}
+	}
+}
+
+void ReorderOddEvent(int* data, size_t n)
+{
+	Reorder(data, n, IsEvent);
+}
+
 int main(int argc, char* argv[])
 {
 	//int weight[3] = { 1,3,4 };
