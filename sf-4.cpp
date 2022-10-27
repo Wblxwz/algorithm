@@ -320,7 +320,7 @@ class Huffman
 {
 public:
 	Huffman() :name('\0'), weight(0), left(nullptr), right(nullptr) {};
-	Huffman(const char name,const int weight, Huffman* left, Huffman* right) :name(name), weight(weight), left(left), right(right) {};
+	Huffman(const char name, const int weight, Huffman* left, Huffman* right) :name(name), weight(weight), left(left), right(right) {};
 	Huffman(const Huffman& h) :name(h.name), weight(h.weight), left(h.left), right(h.right) {};
 	char GetName()
 	{
@@ -342,7 +342,7 @@ public:
 	{
 		this->weight = weight;
 	}
-	void SetLeft(Huffman *h)
+	void SetLeft(Huffman* h)
 	{
 		this->left = h;
 	}
@@ -400,7 +400,7 @@ Huffman* HuffmanTree()
 	size_t n = v.size();
 	for (size_t i = 0; i < n - 1; ++i)
 	{
-		Huffman *z = new Huffman(),*x(Top(v)),*y(Top(v));
+		Huffman* z = new Huffman(), * x(Top(v)), * y(Top(v));
 		z->SetLeft(x);
 		z->SetRight(y);
 		z->SetWeight(x->GetWeight() + y->GetWeight());
@@ -627,6 +627,14 @@ bool IsNumber(const char* str)
 	return numeric && *str == '\0';
 }
 
+//摊还分析使用摊还代价，确定不同操作组成的集合“平均”代价
+//聚合分析 核算法 聚能法
+
+//内存(RAM)用红黑树，磁盘(辅存)用B树
+//B树类似红黑树，是一种平衡搜索树
+//不同点在于B树可以有很多孩子，红黑树是二叉树
+//
+
 int main(int argc, char* argv[])
 {
 	//int weight[3] = { 1,3,4 };
@@ -637,6 +645,7 @@ int main(int argc, char* argv[])
 	//Print1ToMaxOfNDigits(3);
 	/*Huffman *h = HuffmanTree();
 	cout << h->GetRight()->GetRight()->GetLeft()->GetWeight();*/
+
 
 	return 0;
 }
