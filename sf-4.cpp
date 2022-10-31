@@ -703,6 +703,94 @@ void ReorderOddEvent(int* data, size_t n)
 	Reorder(data, n, IsEvent);
 }
 
+//链表中倒数第k个结点
+ListNode* FindKthToTail(ListNode* head, size_t k)
+{
+	if (head == nullptr || k <= 0)
+	{
+		return nullptr;
+	}
+	else
+	{
+		ListNode* first = head;
+		for (int i = 0; i < k - 1; ++i)
+		{
+			if (first->next != nullptr)
+			{
+				first = first->next;
+			}
+			else
+			{
+				return nullptr;
+			}
+		}
+		ListNode* last = head;
+		while (first->next)
+		{
+			first = first->next;
+			last = last->next;
+		}
+		return last;
+	}
+}
+
+//链表中环的入口结点
+ListNode* MeetingNode(ListNode* head)
+{
+	if (head == nullptr)
+	{
+		return nullptr;
+	}
+	ListNode* slow = head->next;
+	if (slow == nullptr)
+	{
+		return nullptr;
+	}
+	ListNode* fast = slow->next;
+	while (fast != nullptr && slow != nullptr)
+	{
+		if (fast == slow)
+		{
+			return fast;
+		}
+		slow = slow->next;
+		fast = fast->next;
+		if (fast != nullptr)
+		{
+			fast = fast->next;
+		}
+	}
+	return nullptr;
+}
+
+ListNode* EntryNodeOfLoop(ListNode* head)
+{
+	ListNode* meeting = MeetingNode(head);
+	if (meeting == nullptr)
+	{
+		return nullptr;
+	}
+	int nodesinloop = 1;
+	ListNode* pnode = meeting;
+	while (pnode->next != meeting)
+	{
+		pnode = pnode->next;
+		++nodesinloop;
+	}
+	pnode = head;
+	for (int i = 0; i < nodesinloop; ++i)
+	{
+		pnode = pnode->next;
+	}
+	ListNode* pnode1 = head;
+	while (pnode != pnode1)
+	{
+		pnode = pnode->next;
+		pnode1 = pnode1->next;
+	}
+	return pnode;
+}
+
 int main(int argc, char* argv[])
 {
 	//int weight[3] = { 1,3,4 };
@@ -713,7 +801,6 @@ int main(int argc, char* argv[])
 	//Print1ToMaxOfNDigits(3);
 	/*Huffman *h = HuffmanTree();
 	cout << h->GetRight()->GetRight()->GetLeft()->GetWeight();*/
-
 
 	return 0;
 }
