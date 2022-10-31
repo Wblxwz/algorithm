@@ -633,7 +633,33 @@ bool IsNumber(const char* str)
 //内存(RAM)用红黑树，磁盘(辅存)用B树
 //B树类似红黑树，是一种平衡搜索树
 //不同点在于B树可以有很多孩子，红黑树是二叉树
-//
+//B树就是把所以孩子数据及指向它们的指针都存在一起，检索一个结点关键字即可检索其所有孩子
+//省去了大量磁盘访问，因为每次检索一个结点都是一次磁盘访问
+
+template<typename T>
+struct BTreeNode
+{
+	BTreeNode* root = nullptr;
+	bool leaf = true;
+	//n = keys.size();
+	size_t n = 0;
+	vector<T> keys;
+	vector<BTreeNode*> childs;
+};
+
+void DiskWirte(BTreeNode<int>* x)
+{
+	cout << "将结点信息写入磁盘页面中" << endl;
+}
+
+void BTreeCreate(BTreeNode<int>* T)
+{
+	BTreeNode<int>* x = new BTreeNode<int>();
+	x->leaf = true;
+	x->n = 0;
+	DiskWirte(x);
+	T->root = x;
+}
 
 //调整数组顺序使奇数位于偶数前面
 //类似策略模式的函数写法
