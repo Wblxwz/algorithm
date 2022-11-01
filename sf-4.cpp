@@ -791,6 +791,75 @@ ListNode* EntryNodeOfLoop(ListNode* head)
 	return pnode;
 }
 
+//反转链表
+ListNode* ReverseList(ListNode* head) {
+	ListNode* pre = nullptr;
+	ListNode* curr = head;
+	while (curr)
+	{
+		ListNode* post = curr->next;
+		curr->next = pre;
+		pre = curr;
+		curr = post;
+	}
+	return pre;
+}
+
+//合并两个递增链表
+ListNode* Merge(ListNode* list1, ListNode* list2)
+{
+	ListNode* list = nullptr;
+	if (list1 == nullptr && list2 == nullptr)
+	{
+		return nullptr;
+	}
+	else if (list1 == nullptr)
+	{
+		list = list2;
+		return list;
+	}
+	else if (list2 == nullptr)
+	{
+		list = list1;
+		return list;
+	}
+	else
+	{
+		list = new ListNode();
+		ListNode* listhead = list, * listhead1 = list1, * listhead2 = list2;
+		while (listhead1 != nullptr && listhead2 != nullptr)
+		{
+			ListNode* node = new ListNode();
+			if (listhead1->data <= listhead2->data)
+			{
+				node->data = listhead1->data;
+				listhead1 = listhead1->next;
+			}
+			else
+			{
+				node->data = listhead2->data;
+				listhead2 = listhead2->next;
+			}
+			listhead->next = node;
+			listhead = listhead->next;
+		}
+		while (listhead1 != nullptr)
+		{
+			listhead->next = listhead1;
+			listhead = listhead->next;
+			listhead1 = listhead1->next;
+		}
+		while (listhead2 != nullptr)
+		{
+			listhead->next = listhead2;
+			listhead = listhead->next;
+			listhead2 = listhead2->next;
+		}
+		return list->next;
+	}
+}
+
+
 int main(int argc, char* argv[])
 {
 	//int weight[3] = { 1,3,4 };
@@ -801,6 +870,30 @@ int main(int argc, char* argv[])
 	//Print1ToMaxOfNDigits(3);
 	/*Huffman *h = HuffmanTree();
 	cout << h->GetRight()->GetRight()->GetLeft()->GetWeight();*/
+	ListNode* h1 = new ListNode();
+	h1->data = 1;
+	ListNode* h2 = new ListNode();
+	h2->data = 2;
+	ListNode* h3 = new ListNode();
+	h3->data = 4;
+	h1->next = h2;
+	h2->next = h3;
+	h3->next = nullptr;
+	ListNode* h4 = new ListNode();
+	h4->data = 1;
+	ListNode* h5 = new ListNode();
+	h5->data = 3;
+	ListNode* h6 = new ListNode();
+	h6->data = 4;
+	h4->next = h5;
+	h5->next = h6;
+	h6->next = nullptr;
+	ListNode* h = Merge(h1, h4);
+	while (h != nullptr)
+	{
+		cout << h->data;
+		h = h->next;
+	}
 
 	return 0;
 }
