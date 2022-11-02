@@ -636,30 +636,18 @@ bool IsNumber(const char* str)
 //B树就是把所以孩子数据及指向它们的指针都存在一起，检索一个结点关键字即可检索其所有孩子
 //省去了大量磁盘访问，因为每次检索一个结点都是一次磁盘访问
 
-template<typename T>
 struct BTreeNode
 {
-	BTreeNode* root = nullptr;
-	bool leaf = true;
-	//n = keys.size();
-	size_t n = 0;
-	vector<T> keys;
-	vector<BTreeNode*> childs;
+	int* keys;
+	BTreeNode** childs;
+	bool leaf;
+	int n;
 };
 
-void DiskWirte(BTreeNode<int>* x)
-{
-	cout << "将结点信息写入磁盘页面中" << endl;
-}
 
-void BTreeCreate(BTreeNode<int>* T)
-{
-	BTreeNode<int>* x = new BTreeNode<int>();
-	x->leaf = true;
-	x->n = 0;
-	DiskWirte(x);
-	T->root = x;
-}
+
+//B树的插入需要按照中间关键字进行分裂
+
 
 //调整数组顺序使奇数位于偶数前面
 //类似策略模式的函数写法
@@ -857,6 +845,66 @@ ListNode* Merge(ListNode* list1, ListNode* list2)
 		}
 		return list->next;
 	}
+}
+
+//树的子结构
+
+struct BinaryTreeNode
+{
+	double value;
+	BinaryTreeNode* left;
+	BinaryTreeNode* right;
+};
+
+bool Equal(const double& n1, const double& n2)
+{
+	//只要相差很小就可以认定相同，这就是为什么自定义Equal函数
+	if ((n1 - n2 > -0.0000001) && (n1 - n2) < 0.0000001)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool DoesTree1HaveTree2(BinaryTreeNode* p1, BinaryTreeNode* p2)
+{
+	if (p2 == nullptr)
+	{
+		return true;
+	}
+	if (p1 == nullptr)
+	{
+		return false;
+	}
+	if (!Equal(p1->value, p2->value))
+	{
+		return false;
+	}
+	return DoesTree1HaveTree2(p1->left, p2->left) && DoesTree1HaveTree2(p1->right, p2->right);
+}
+
+bool HasSubtree(BinaryTreeNode* r1, BinaryTreeNode* r2)
+{
+	bool result = false;
+	if (r1 != nullptr && r2 != nullptr)
+	{
+		if (Equal(r1->value, r2->value))
+		{
+			result = DoesTree1HaveTree2(r1, r2);
+		}
+		if (!result)
+		{
+			result = DoesTree1HaveTree2(r1->left, r2);
+		}
+		if (!result)
+		{
+			result = DoesTree1HaveTree2(r1->right, r2);
+		}
+	}
+	return result;
 }
 
 
