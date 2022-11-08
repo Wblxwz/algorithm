@@ -644,7 +644,25 @@ struct BTreeNode
 	int n;
 };
 
+class BTree
+{
+public:
+	BTree() :root(nullptr) {}
+	void SetRoot(BTreeNode* x)
+	{
+		this->root = x;
+	}
+private:
+	BTreeNode* root;
+};
 
+void BTreeCreate(BTree* t)
+{
+	BTreeNode* x = new BTreeNode();
+	x->leaf = true;
+	x->n = 0;
+	t->SetRoot(x);
+}
 
 //B树的插入需要按照中间关键字进行分裂
 
@@ -906,7 +924,6 @@ bool HasSubtree(BinaryTreeNode* r1, BinaryTreeNode* r2)
 	}
 	return result;
 }
-
 
 int main(int argc, char* argv[])
 {
