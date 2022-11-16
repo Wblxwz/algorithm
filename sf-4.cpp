@@ -664,6 +664,20 @@ void BTreeCreate(BTree* t)
 	t->SetRoot(x);
 }
 
+BTreeNode* BTreeSerach(BTreeNode* r, int x)
+{
+	int i = 0;
+	while (i < r->n && x > r->keys[i])
+	{
+		++i;
+	}
+	if (r->keys[i] == x)
+		return r;
+	if (r->leaf)
+		return nullptr;
+	return BTreeSerach(r->childs[i], x);
+}
+
 //B树的插入需要按照中间关键字进行分裂
 
 
