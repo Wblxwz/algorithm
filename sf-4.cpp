@@ -642,18 +642,24 @@ struct BTreeNode
 	BTreeNode** childs;
 	bool leaf;
 	int n;
+	int t;
 };
 
 class BTree
 {
 public:
-	BTree() :root(nullptr) {}
+	BTree(int t) :root(nullptr), t(t) {}
 	void SetRoot(BTreeNode* x)
 	{
 		this->root = x;
 	}
+	BTreeNode* GetRoot()
+	{
+		return root;
+	}
 private:
 	BTreeNode* root;
+	int t;
 };
 
 void BTreeCreate(BTree* t)
@@ -679,7 +685,88 @@ BTreeNode* BTreeSerach(BTreeNode* r, int x)
 }
 
 //B树的插入需要按照中间关键字进行分裂
+void BTreeSplitChild(BTreeNode* x, int i)
+{
+	int t = x->t;
+	BTreeNode* z = new BTreeNode();
+	BTreeNode* y = x->childs[i];
+	z->leaf = y->leaf;
+	z->n = t;
+	for (int j = 0; i < j - 1; ++j)
+	{
+		z->keys[j] = y->keys[j + t];
+	}
+	if (!y->leaf)
+	{
+		for (int j = 0; j < t; ++j)
+		{
+			z->childs[j] = y->childs[j + t];
+		}
+	}
+	y->n = x->t - 1;
+	for (int j = x->n; j >= i + 1; --j)
+	{
+		x->childs[j + 1] = x->childs[j];
+	}
+	x->childs[i + 1] = z;
+	for (int j = x->n; j >= i; --j)
+	{
+		x->keys[j + 1] = x->keys[j];
+	}
+	x->keys[i] = y->keys[i];
+	x->n = x->n + 1;
+}
 
+void BTreeInsertNonFull(BTreeNode* x, int k)
+{
+	int i = x->n - 1;
+	if (x->leaf)
+	{
+		while (i >= 0 && k < x->keys[i])
+		{
+			x->keys[i + 1] = x->keys[i];
+			--i;
+		}
+		x->keys[i + 1] = k;
+		x->n = x->n + 1;
+	}
+	else
+	{
+		while (i >= 0 && k < x->keys[i])
+		{
+			--i;
+		}
+		++i;
+		if (x->childs[i]->n == 2 * x->t - 1)
+		{
+			BTreeSplitChild(x, i);
+		}
+		if (k > x->keys[i])
+		{
+			++i;
+		}
+		BTreeInsertNonFull(x->childs[i], k);
+	}
+}
+
+void Insert(BTree* t, int k)
+{
+	BTreeNode* r = t->GetRoot();
+	if (r->n == r->t * 2 - 1)
+	{
+		BTreeNode* s = new BTreeNode();
+		t->SetRoot(s);
+		s->leaf = false;
+		s->n = 0;
+		s->childs[0] = r;
+		BTreeSplitChild(s, 1);
+		BTreeInsertNonFull(s, k);
+	}
+	else
+	{
+		BTreeInsertNonFull(r, k);
+	}
+}
 
 //调整数组顺序使奇数位于偶数前面
 //类似策略模式的函数写法
