@@ -102,6 +102,49 @@ void PrintMatrixClockwisely(int** numbers, int columns, int rows)
 	}
 }
 
+//ì³²¨ÄÇÆõ¶Ñ
+struct FibHeap
+{
+	int n;
+	FibNode* min;
+};
+
+struct FibNode
+{
+	int degree;
+	FibNode* p, * child, * left, * right;
+	bool mark;
+	int key;
+};
+
+FibHeap* MakeFibHeap()
+{
+	FibHeap* h = new FibHeap;
+	h->min = nullptr;
+	h->n = 0;
+	return h;
+}
+
+void FibHeapInsert(FibHeap* h, FibNode* x)
+{
+	x->degree = 0;
+	x->p = nullptr;
+	x->child = nullptr;
+	x->mark = false;
+	if (h->min == nullptr)
+	{
+		h->min = x;
+	}
+	else
+	{
+		if (x->key < h->min->key)
+		{
+			h->min = x;
+		}
+	}
+	h->n += 1;
+}
+
 int main(int argc, char* argv[])
 {
 
