@@ -125,6 +125,14 @@ FibHeap* MakeFibHeap()
 	return h;
 }
 
+void FibHeapInsertRootList(FibHeap* h, FibNode* x)
+{
+	h->min->left->right = x;
+	x->left = h->min->left;
+	h->min->left = x;
+	x->right = h->min;
+}
+
 void FibHeapInsert(FibHeap* h, FibNode* x)
 {
 	x->degree = 0;
@@ -133,13 +141,17 @@ void FibHeapInsert(FibHeap* h, FibNode* x)
 	x->mark = false;
 	if (h->min == nullptr)
 	{
+		x->left = x;
+		x->right = x;
 		h->min = x;
 	}
 	else
 	{
 		if (x->key < h->min->key)
 		{
-			h->min = x;
+			FibHeapInsertRootList(h, x);
+			if (h->min->key > x->key)
+				h->min = x;
 		}
 	}
 	h->n += 1;
