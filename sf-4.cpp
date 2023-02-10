@@ -902,9 +902,10 @@ ListNode* EntryNodeOfLoop(ListNode* head)
 ListNode* ReverseList(ListNode* head) {
 	ListNode* pre = nullptr;
 	ListNode* curr = head;
+	ListNode* post = nullptr;
 	while (curr)
 	{
-		ListNode* post = curr->next;
+		post = curr->next;
 		curr->next = pre;
 		pre = curr;
 		curr = post;

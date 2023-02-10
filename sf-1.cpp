@@ -2,11 +2,12 @@
 #include <thread>
 #include <limits>
 #include <Windows.h>
-#include<sql.h>
-#include<sqlext.h>
-#include<sqltypes.h>
+#include <sql.h>
+#include <sqlext.h>
+#include <sqltypes.h>
 #include <fstream>
 #include <vector>
+#include <random>
 
 using std::cin;
 using std::cout;
@@ -16,7 +17,7 @@ using std::endl;
 //大写名称通常用于宏，这里不应用大写，暂时不改了
 //常量定义式通常放在头文件里
 const int ROWS = 3;
-const int SIZE = 10;
+const int MYSIZE = 10;
 
 template<typename T, typename U>
 inline void print(T* a, const U& n)
@@ -69,6 +70,25 @@ void insert_Sort(int* a, const size_t& n)
 		a[j + 1] = key;
 	}
 }
+//希尔排序 O(nlog2n)
+
+void shellSort(int* a, const size_t& n)
+{
+	for (int gap = n / 2; gap > 0; gap /= 2)
+		for (int i = 0; i < gap; ++i)
+			for (int j = i + gap; j < n; j += gap)
+			{
+				int temp = a[j];
+				int preindex = j - gap;
+				while (a[preindex] > temp && preindex >= 0)
+				{
+					a[preindex + gap] = a[preindex];
+					preindex -= gap;
+				}
+				a[preindex + gap] = temp;
+			}
+}
+
 //选择排序 O(n^2)
 void select_Sort(int* a, const size_t& n)
 {
@@ -134,6 +154,34 @@ void merge_Sort(int* a, const int start, const int end, int* b)
 		merge_Sort(a, (end - start + 1) / 2 + 1, end, b);
 		merge(a, start, end, b);
 	}
+}
+
+void myMerge(int* arr, const int& start, const int& mid, const int& end)
+{
+	int len = (end - start) + 1;
+	int left = start;
+	int right = mid + 1;
+	int* temp = new int[len];
+	int i = 0;
+	while (left <= mid && right <= end)
+		temp[i++] = arr[left] <= arr[right] ? arr[left++] : arr[right++];
+	while (left <= mid)
+		temp[i++] = arr[left++];
+	while (right <= end)
+		temp[i++] = arr[right++];
+	for (int j = 0; j < len; ++j)
+		arr[start + j] = temp[j];
+	delete[]temp;
+}
+
+void myMergeSort(int *arr,const int& start,const int& end)
+{
+	if (start == end)
+		return;
+	int mid = (start + end) / 2;
+	myMergeSort(arr, start, mid);
+	myMergeSort(arr, mid + 1, end);
+	myMerge(arr, start, mid, end);
 }
 
 //最大子数组
@@ -256,7 +304,7 @@ private:
 	static const int ROWS = 3;
 	//the enum hack补偿，用来处理static const无法使用的情况
 	//enum更像#define
-	enum { ROWS = 3 };
+	enum { MYROWS = 3 };
 	int rows = 0;
 	//int cols = 0;
 	//动态创建二维数组
@@ -518,7 +566,6 @@ void maxHeapInsert(Heap& h, int key)//插入一个新元素
 /*快速排序，实际排序中最好的选择，因为平均性能非常好 O(nlgn)*/
 int Partition(int* a, int p, int r)
 {
-
 	int x = a[r];
 	int i = p - 1;
 	for (int j = p; j <= r - 1; ++j)
@@ -543,13 +590,15 @@ void quickSort(int* a, int p, int r)
 	}
 }
 
-int Random(const int a, const int b)
+/*随机化版本的快速排序，在处理大数据输入时效果更好*/
+int Random(const int& a, const int& b)
 {
-	srand(unsigned(time(0)));
-	return rand() % (b - a + 1) + a;
+	std::default_random_engine e;
+	e.seed(time(nullptr));
+	std::uniform_int_distribution<size_t> u(a, b);
+	return u(e);
 }
 
-/*随机化版本的快速排序，在处理大数据输入时效果更好*/
 int randomPartition(int* a, int p, int r)
 {
 	int i = Random(p, r);
@@ -565,6 +614,34 @@ void randomQuickSort(int* a, int p, int r)
 		randomQuickSort(a, p, q - 1);
 		randomQuickSort(a, q + 1, r);
 	}
+}
+
+int myPartition(int* a, int p, int r)
+{
+	int index = Random(p, r);
+	swap(a[index], a[r]);
+	int first = p - 1;
+	for (index = p; index < r; ++index)
+		if (a[index] < a[r])
+		{
+			++first;
+			if (index != first)
+				swap(a[index], a[first]);
+		}
+	++first;
+	swap(a[first], a[r]);
+	return first;
+}
+
+void myQuickSort(int* a, const int& start,const int& end)
+{
+	if (start == end)
+		return;
+	int index = myPartition(a, start, end);
+	if (index > start)
+		myQuickSort(a, start, index - 1);
+	if (index < end)
+		myQuickSort(a, index + 1, end);
 }
 
 /*选择第i个顺序统计量（即数组中第i个最小值）*/
@@ -688,9 +765,9 @@ struct Stack
 
 void initStack(Stack& s)
 {
-	s.data = new int[SIZE];
+	s.data = new int[MYSIZE];
 	s.top = -1;
-	s.maxSize = SIZE;
+	s.maxSize = MYSIZE;
 }
 
 bool stackEmpty(Stack& s)
@@ -787,8 +864,8 @@ struct Queue
 
 void initQueue(Queue& q)
 {
-	q.data = new int[SIZE];
-	q.maxSize = SIZE;
+	q.data = new int[MYSIZE];
+	q.maxSize = MYSIZE;
 	q.head = 0;
 	q.tail = 0;
 }
@@ -936,7 +1013,9 @@ int main(int argc, char* argv[])
 	Maxarray m = find_MaxArray(c, 0, 8);
 	cout << m.getSum();*/
 	//print(a, 6);
-
+	/*int a[6] = { 5,2,4,6,1,3 };
+	myMergeSort(a, 0, 5);
+	print(a, 6);*/
 	/*print(a,6);
 	insert_Sort(a, 6);
 	select_Sort(a, 6);
@@ -993,8 +1072,13 @@ int main(int argc, char* argv[])
 	//int a[5] = { 1, 3, 6, 6, 1};
 	//cout << minMaxValue(a, 5).min << " " << minMaxValue(a, 5).max << endl;
 
-	/*int a[6] = { 5, 2, 4, 6, 1, 3 };
-	cout << randomSelect(a, 1, 5, 6, 6);*/
+	/*int a[6] = {5, 2, 4, 6, 1, 3};
+	myQuickSort(a, 0, 5);
+	print(a, 6);*/
+	//cout << randomSelect(a, 1, 5, 6, 6);
+
+	/*shellSort(a, 6);
+	print(a, 6);*/
 
 	/*Stack s;
 	initStack(s);
