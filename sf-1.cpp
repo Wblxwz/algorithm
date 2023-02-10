@@ -12,6 +12,7 @@
 using std::cin;
 using std::cout;
 using std::endl;
+using std::vector;
 
 //尽量以const替换#define宏
 //大写名称通常用于宏，这里不应用大写，暂时不改了
@@ -174,7 +175,7 @@ void myMerge(int* arr, const int& start, const int& mid, const int& end)
 	delete[]temp;
 }
 
-void myMergeSort(int *arr,const int& start,const int& end)
+void myMergeSort(int* arr, const int& start, const int& end)
 {
 	if (start == end)
 		return;
@@ -633,7 +634,7 @@ int myPartition(int* a, int p, int r)
 	return first;
 }
 
-void myQuickSort(int* a, const int& start,const int& end)
+void myQuickSort(int* a, const int& start, const int& end)
 {
 	if (start == end)
 		return;
@@ -661,91 +662,105 @@ int randomSelect(int* a, int p, int r, int i, const int& n)
 		return randomSelect(a, q + 1, r, i, n);
 }
 
+template<typename T>
+T myMax(T* a, const T& n)
+{
+	T maxnum = a[0];
+	for (int i = 1; i < n; ++i)
+	{
+		if (a[i] > maxnum)
+			maxnum = a[i];
+	}
+	return maxnum;
+}
+
+template<typename T>
+T myMin(T* a, const T& n)
+{
+	T minnum = a[0];
+	for (int i = 1; i < n; ++i)
+	{
+		if (a[i] < minnum)
+			minnum = a[i];
+	}
+	return minnum;
+}
 
 //计数排序 O(k+n)
 //有条件 输入的所有数小于等于k 对输入元素做假设
 //是稳定的排序（相等的数排序完成后不改变其顺序，比如a2 a4都是3，排完后a2还在a4前面）
-void countSort(int* a, const int k, const int n)
+void countSort(int* a, const int n)
 {
-	int* c = new int[k];
-	int* b = new int[n];
-	for (int i = 0; i < k; ++i)
+	int minnum = myMin(a, n);
+	int maxnum = myMax(a, n);
+	int len = maxnum - minnum + 1;
+	vector<int> v(len);
+	vector<int> output(n);
+	for (int i = 0; i < n; ++i)
+		++v[a[i] - minnum];
+	for (int i = 1; i < len; ++i)
+		v[i] += v[i - 1];
+	for (int i = n - 1; i >= 0; --i)
 	{
-		c[i] = 0;
-	}
-	for (int j = 0; j < n; ++j)
-	{
-		++c[a[j]];
-	}
-	for (int i = 1; i < k; ++i)
-	{
-		c[i] += c[i - 1];
-	}
-	for (int j = n - 1; j >= 0; --j)
-	{
-		b[c[a[j]] - 1] = a[j];
-		--c[a[j]];
+		output[v[a[i] - minnum] - 1] = a[i];
+		--v[a[i] - minnum];
 	}
 	for (int i = 0; i < n; ++i)
-	{
-		a[i] = b[i];
-	}
-	delete[]c;
-	delete[]b;
+		a[i] = output[i];
 }
 
 
 //基数排序 最大值小于等于9 按位排序 O(n+k) [因为用的计数排序是稳定排序]
-void radixSort(int* a, const int d, const int n)
+void radixSort(int* a, const int& n)
 {
-	int* tmp = new int[n];
-	int* count = new int[10]; //计数器
-	int radix = 1;
-	int k = 0;
-	for (int i = 0; i < d; i++) //进行d次排序
+	int maxnum = myMax(a,n);
+	int mod = 10, div = 1;
+	int maxdiv = 0;
+	while (maxnum != 0)
 	{
-		for (int j = 0; j < 10; j++)
-			count[j] = 0; //每次分配前清空计数器
-		for (int j = 0; j < n; j++)
-		{
-			k = (a[j] / radix) % 10; //统计每个桶中的记录数
-			count[k]++;
-		}
-		for (int j = 1; j < 10; j++)
-			count[j] = count[j - 1] + count[j]; //将tmp中的位置依次分配给每个桶
-		for (int j = n - 1; j >= 0; j--) //将所有桶中记录依次收集到tmp中
-		{
-			k = (a[j] / radix) % 10;
-			tmp[count[k] - 1] = a[j];
-			count[k]--;
-		}
-		for (int j = 0; j < n; j++) //将临时数组的内容复制到data中
-			a[j] = tmp[j];
-		radix = radix * 10;
+		maxnum /= 10;
+		++maxdiv;
 	}
-	delete[]tmp;
-	delete[]count;
+	vector<int> v[10];
+	for (int i = 0; i < maxdiv; mod *= 10, div *= 10, ++i)
+	{
+		for (int j = 0; j < n; ++j)
+			v[(a[j] % mod) / div].push_back(a[j]);
+		int index = 0;
+		for (int k = 0; k < 10; ++k)
+		{
+			int size = v[k].size();
+			for (int l = 0; l < size; ++l)
+			{
+				a[index++] = v[k][l];
+			}
+			v[k].clear();
+		}
+	}
 }
 
-//桶排序 O(n) 因为对输入做了假设所以快
-//假设输入由随机过程产生，元素被均匀、独立地分布在[0,1)区间上
-//即每个元素 0<= x < n
-void bucketSort(int* a, const int n)
+//桶排序 O(n)
+void bucketSort(int* arr, const int& bucketsize, const int& n)
 {
-	int* b = new int[n];
+	if (n < 2)
+		return;
+	int minnum = arr[0];
+	int maxnum = arr[0];
+	minnum = myMin(arr, n);
+	maxnum = myMax(arr, n);
+	int bucketcount = (maxnum - minnum) / bucketsize + 1;
+	vector<int>* buckets = new vector<int>[bucketcount];
 	for (int i = 0; i < n; ++i)
+		buckets[(arr[i] - minnum) / bucketsize].push_back(arr[i]);
+	int k = 0;
+	for (int i = 0; i < bucketcount; ++i)
 	{
-		//make b[i] an empty DoubleList
+		int size = buckets[i].size();
+		bucketSort(buckets[i].data(), bucketsize, size);
+		for (int j = 0; j < size; ++j)
+			arr[k++] = buckets[i][j];
 	}
-	for (int i = 0; i < n; ++i)
-	{
-		//insert a[i] into DoubleList b[⌊na[i]⌋]
-	}
-	for (int i = 0; i < n; ++i)
-	{
-		//sort DoubleList b[i] with insertion sort
-	}
-	//concatenate the DoubleLists b together in order
+	delete[] buckets;
 }
 
 /*最坏情况为O(n)的选择算法*/
@@ -1061,9 +1076,11 @@ int main(int argc, char* argv[])
 	randomQuickSort(a, 0, 5);
 	print(a, 6);*/
 
-	/*int a[6] = { 5, 2, 4, 6, 1, 3 };
-	countSort(a, 7, 6);
-	print(a, 6);*/
+	//int a[6] = { 5, 2, 4, 6, 1, 3 };
+	////bucketSort(a, 1, 6);
+	//////countSort(a, 6);
+	//radixSort(a, 6);
+	//print(a, 6);
 
 	/*int a[6] = { 329, 457, 657, 839, 436, 720 };
 	radixSort(a,3,6);
