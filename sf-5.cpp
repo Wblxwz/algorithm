@@ -1,6 +1,8 @@
-#include <iostream>
+
+#include "sf-5.h"
 
 using namespace std;
+
 
 //¶þ²æÊ÷µÄ¾µÏñ
 
@@ -34,6 +36,8 @@ void MirrorRecursively(BinaryTreeNode* head)
 }
 
 //¶Ô³ÆµÄ¶þ²æÊ÷
+bool IsSymmetrical(BinaryTreeNode* root1, BinaryTreeNode* root2);
+
 bool IsSymmetrical(BinaryTreeNode* root)
 {
 	return IsSymmetrical(root, root);
@@ -103,6 +107,8 @@ void PrintMatrixClockwisely(int** numbers, int columns, int rows)
 }
 
 //ì³²¨ÄÇÆõ¶Ñ
+struct FibNode;
+
 struct FibHeap
 {
 	int n;
@@ -157,8 +163,178 @@ void FibHeapInsert(FibHeap* h, FibNode* x)
 	h->n += 1;
 }
 
+template<typename T>
+bool ListStack<T>::push(const T& data)
+{
+	ListStack* node = new ListStack;
+	assert(node);
+	node->data = data;
+	node->next = head;
+	head = node;
+	return true;
+}
+
+template<typename T>
+T ListStack<T>::pop()
+{
+	if (!head)
+		return INT_MIN;
+	ListStack* temp = head;
+	head = head->next;
+	int n = temp->data;
+	delete temp;
+	return n;
+}
+
+template<typename T>
+const T& ListStack<T>::top() const
+{
+	return head ? head->data : INT_MIN;
+}
+
+template<typename T>
+const size_t ListStack<T>::size()
+{
+	size_t cnt = 0;
+	ListStack<T>* tmp = head;
+	while (tmp)
+	{
+		tmp = tmp->next;
+		++cnt;
+	}
+	return cnt;
+}
+
+template<typename T>
+void ListStack<T>::deleter()
+{
+	while (head)
+	{
+		ListStack<T>* temp = head;
+		head = head->next;
+		delete temp;
+	}
+}
+
+template<typename T>
+void StackWithMin<T>::push(const T& data)
+{
+	d_stack->push(data);
+	if (m_stack->size() == 0 || data < m_stack->top())
+		m_stack->push(data);
+	else
+		m_stack->push(m_stack->top());
+}
+
+template<typename T>
+T StackWithMin<T>::pop()
+{
+	d_stack->pop();
+	m_stack->pop();
+}
+
+template<typename T>
+const T& StackWithMin<T>::min() const
+{
+	assert(m_stack->size() > 0 && d_stack->size() > 0);
+	return m_stack->top();
+}
+
+bool isPopOrder(vector<int>& pushed, vector<int>& popped)
+{
+	if (pushed.empty() || popped.empty())
+		return true;
+	auto p1 = pushed.begin();
+	auto p2 = popped.begin();
+	stack<int> a_stack;
+	while (p2 != popped.cend())
+	{
+		while (a_stack.empty() || a_stack.top() != *p2)
+		{
+			if (p1 == pushed.cend())
+				break;
+			a_stack.push(*p1);
+			++p1;
+		}
+		if (a_stack.top() != *p2)
+			break;
+		a_stack.pop();
+		++p2;
+	}
+	if (a_stack.empty())
+		return true;
+	return false;
+}
+
+
+namespace mystl
+{
+	template<typename T>
+	BinaryTreeNode* BinaryTree<T>::create(BinaryTreeNode* node)
+	{
+		int tmp = INT_MIN;
+		cin >> tmp;
+		if (tmp == -1)
+			node = nullptr;
+		else
+		{
+			node = new BinaryTreeNode;
+			node->data = tmp;
+			node->left = create(node->left);
+			node->right = create(node->right);
+		}
+		return node;
+	}
+	template<typename T>
+	void BinaryTree<T>::print(BinaryTreeNode* node)
+	{
+		if (node)
+		{
+			cout << node->data << " ";
+			print(node->left);
+			print(node->right);
+		}
+	}
+	template<typename T>
+	void printBinaryTreeRows(BinaryTreeNode* root)
+	{
+		if (!root)
+			return;
+		std::deque<T> deque;
+		deque.push_back(root);
+		while (!deque.empty())
+		{
+			BinaryTreeNode* node = deque.front();
+			deque.pop_front();
+			cout << node->data << " ";
+			if (node->left)
+				deque.push_back(node->left);
+			if (node->right)
+				deque.push_back(node->right);
+		}
+	}
+}
+
+
+
 int main(int argc, char* argv[])
 {
+	/*StackWithMin<int> min_stack;
+	min_stack.push(3);
+	cout << min_stack.min() << endl;
+	min_stack.push(2);
+	cout << min_stack.min() << endl;
+	min_stack.push(3);
+	cout << min_stack.min() << endl;*/
+
+	/*vector<int> pushed{ 1,2,3,4,5 };
+	vector<int> popped{ 4,3,5,1,2 };
+	cout << isPopOrder(pushed, popped);*/
+
+	mystl::BinaryTree<int> tree;
+	mystl::BinaryTreeNode* root = new mystl::BinaryTreeNode;
+	root = tree.create(root);
+	mystl::printBinaryTreeRows<mystl::BinaryTreeNode*>(root);
 
 	return 0;
 }
