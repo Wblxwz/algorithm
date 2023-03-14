@@ -8,6 +8,7 @@ using namespace std;
 
 struct BinaryTreeNode
 {
+	BinaryTreeNode(int val) :value(val), left(nullptr), right(nullptr) {}
 	int value;
 	BinaryTreeNode* left, * right;
 };
@@ -313,9 +314,255 @@ namespace mystl
 				deque.push_back(node->right);
 		}
 	}
+	template<typename T>
+	void BinarySearchTree<T>::insert(const T& data)
+	{
+		BinaryTreeNode* node = new BinaryTreeNode;
+		node->data = data;
+		node->left = nullptr;
+		node->right = nullptr;
+		if (!root)
+		{
+			root = node;
+			return;
+		}
+		BinaryTreeNode* temp = root;
+		while (true)
+		{
+			if (data < temp->data)
+			{
+				if (!temp->left)
+				{
+					temp->left = node;
+					return;
+				}
+				else
+					temp = temp->left;
+			}
+			else
+			{
+				if (!temp->right)
+				{
+					temp->right = node;
+					return;
+				}
+				else
+					temp = temp->right;
+			}
+
+		}
+	}
+	template<typename T>
+	void BinarySearchTree<T>::destroy(BinaryTreeNode* node)
+	{
+		if (!node)
+			return;
+		if (node->left)
+			destroy(node->left);
+		if (node->right)
+			destroy(node->right);
+		delete node;
+		node = nullptr;
+	}
+	template<typename T>
+	void BinarySearchTree<T>::xianXuPrint(BinaryTreeNode* node)
+	{
+		cout << node->data << endl;
+		if (node->left)
+			xianXuPrint(node->left);
+		if (node->right)
+			xianXuPrint(node->right);
+	}
+	template<typename T>
+	BinaryTreeNode* BinarySearchTree<T>::getRoot()
+	{
+		return root;
+	}
 }
 
+bool verifyPostorder(vector<int>& postorder)
+{
+	if (postorder.empty())
+		return false;
+	int size = postorder.size();
+	int root = postorder.back();
+	int i = 0;
+	for (; i < size - 1; ++i)
+		if (postorder[i] > root)
+			break;
+	int j = i;
+	for (; j < size - 1; ++j)
+		if (postorder[j] < root)
+			return false;
+	bool isLeft = true;
+	if (i > 0)
+	{
+		vector<int> left(postorder.begin(), postorder.begin() + i);
+		isLeft = verifyPostorder(left);
+	}
+	bool isRight = true;
+	if (i < size - 1)
+	{
+		vector<int> right(postorder.begin() + i, postorder.end() - 1);
+		isRight = verifyPostorder(right);
+	}
+	return isLeft && isRight;
+}
 
+class Node {
+public:
+	int val;
+	Node* left;
+	Node* right;
+
+	//Node() {}
+
+	Node(int _val) {
+		val = _val;
+		left = NULL;
+		right = NULL;
+	}
+
+	Node(int _val, Node* _left, Node* _right) {
+		val = _val;
+		left = _left;
+		right = _right;
+	}
+};
+
+void helpPrint(char* nums)
+{
+	int n = strlen(nums);
+	bool is0 = true;
+	for (int i = 0; i < n; ++i)
+	{
+		if (nums[i] != '0' && is0)
+			is0 = false;
+		if (!is0)
+			cout << nums[i];
+	}
+	cout << endl;
+}
+
+void helper(const int n, char* nums, int index)
+{
+	for (int i = 0; i < 10; ++i)
+	{
+		if (index == n - 1)
+		{
+			helpPrint(nums);
+			return;
+		}
+		nums[index + 1] = i + '0';
+		helper(n, nums, index + 1);
+	}
+}
+
+void quanPaiLie(const int n)
+{
+	char* nums = new char[n + 1];
+	nums[n] = '\0';
+	for (int i = 0; i < 10; ++i)
+	{
+		nums[0] = i + '0';
+		helper(n, nums, 0);
+	}
+}
+
+class Solution {
+public:
+	vector<vector<string>> solveNQueens(int n)
+	{
+		vector<vector<string>> result;
+		if (n <= 0)
+			return vector<vector<string>>();
+		vector<string> path(n, string(n, '.'));
+		queen(result, path, 0, n);
+		return result;
+	}
+private:
+	bool isRight(vector<string>& path, int row, int col, int n)
+	{
+		for (int i = 0; i < n; ++i)
+			if (path[i][col] == 'Q')
+				return false;
+		for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; --i, --j)
+			if (path[i][j] == 'Q')
+				return false;
+		for (int i = row - 1, j = col + 1; i >= 0 && j < n; --i, ++j)
+			if (path[i][j] == 'Q')
+				return false;
+		return true;
+	}
+	void queen(vector<vector<string>>& result, vector<string>& path, int row, int n)
+	{
+		if (row == n)
+		{
+			result.push_back(path);
+			return;
+		}
+		for (int col = 0; col < n; ++col)
+		{
+			if (isRight(path, row, col, n))
+			{
+				result[row][col] = 'Q';
+				queen(result, path, row + 1, n);
+				result[row][col] = '.';
+			}
+		}
+	}
+};
+
+const int binarySerach(int* nums, const int n, const int data)
+{
+	int left = 0, right = n;
+	while (left < right)
+	{
+		int mid = (left + right) / 2;
+		if (nums[mid] == data)
+			right = mid;
+		else if (nums[mid] < data)
+			left = mid + 1;
+		else
+			right = mid;
+	}
+	return left;
+}
+
+void bfs(BinaryTreeNode* root)
+{
+	deque<BinaryTreeNode*> deque;
+	deque.push_back(root);
+	while (!deque.empty())
+	{
+		BinaryTreeNode* node = deque.front();
+		cout << node->value << " ";
+		deque.pop_front();
+		if (node->left)
+			deque.push_back(node->left);
+		if (node->right)
+			deque.push_back(node->right);
+	}
+	cout << endl;
+}
+
+void dfs(BinaryTreeNode* root)
+{
+	stack<BinaryTreeNode*> stack;
+	stack.push(root);
+	while (!stack.empty())
+	{
+		int n = stack.size();
+		BinaryTreeNode* node = stack.top();
+		cout << node->value << " ";
+		stack.pop();
+		if (node->right)
+			stack.push(node->right);
+		if (node->left)
+			stack.push(node->left);
+	}
+	cout << endl;
+}
 
 int main(int argc, char* argv[])
 {
@@ -331,10 +578,44 @@ int main(int argc, char* argv[])
 	vector<int> popped{ 4,3,5,1,2 };
 	cout << isPopOrder(pushed, popped);*/
 
-	mystl::BinaryTree<int> tree;
+	/*mystl::BinaryTree<int> tree;
 	mystl::BinaryTreeNode* root = new mystl::BinaryTreeNode;
 	root = tree.create(root);
-	mystl::printBinaryTreeRows<mystl::BinaryTreeNode*>(root);
+	mystl::printBinaryTreeRows<mystl::BinaryTreeNode*>(root);*/
+
+	/*mystl::BinarySearchTree<int> tree;
+	tree.insert(5);
+	tree.insert(3);
+	tree.insert(1);
+	tree.insert(2);
+	tree.insert(6);
+	tree.xianXuPrint(tree.getRoot());*/
+
+	/*vector<int> sequence1 = { 5, 7, 6, 9, 11, 10, 8 };
+	vector<int> sequence2 = { 7, 4, 6, 5 };
+	cout << verifyPostorder(sequence1) << endl;
+	cout << verifyPostorder(sequence2) << endl;*/
+
+	/*Node* head = new Node(4);
+	head->left = new Node(2);
+	head->left->left = new Node(1);
+	head->right = new Node(5);
+	head->left->right = new Node(3);
+	treeToDoublyList(head);
+	cout << head->right->val;*/
+
+	/*int data[7]{ 1,1,1,4,4,5,5 };
+	cout << binarySerach(data, 7, 1);*/
+
+	BinaryTreeNode* root = new BinaryTreeNode(1);
+	root->left = new BinaryTreeNode(2);
+	root->right = new BinaryTreeNode(3);
+	root->left->left = new BinaryTreeNode(4);
+	root->left->right = new BinaryTreeNode(5);
+	root->right->left = new BinaryTreeNode(6);
+	root->right->right = new BinaryTreeNode(7);
+	bfs(root);
+	dfs(root);
 
 	return 0;
 }
