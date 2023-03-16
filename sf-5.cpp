@@ -564,6 +564,116 @@ void dfs(BinaryTreeNode* root)
 	cout << endl;
 }
 
+template<typename K, typename V>
+SkipList<K, V>::SkipList(const int maxLevel)
+{
+	this->maxLevel = maxLevel;
+	pair<K, V> p(INT_MIN, 0);
+	head = new SkipNode<K, V>(p, maxLevel);
+	pair<K, V> tp(INT_MAX, 0);
+	tail = new SkipNode<K, V>(tp, maxLevel);
+	for (int i = 0; i < maxLevel; ++i)
+		head->next[i] = tail;
+}
+
+template<typename K, typename V>
+int SkipList<K, V>::randomLevel()
+{
+	int temp_level = 1;
+	default_random_engine e;
+	e.seed(time(nullptr));
+	uniform_int_distribution<size_t> u(0, 1);
+	while (u(e) && temp_level < maxLevel)
+		++temp_level;
+	return temp_level;
+}
+
+template<typename K, typename V>
+int SkipList<K, V>::nodeLevel(SkipNode<K, V>** next)
+{
+	int node_Level = 0;
+	if (next[0]->element.first == INT_MAX)
+		return node_Level;
+	int size = sizeof(next) / sizeof(SkipNode<K, V>*);
+	for (int i = 0; i < size; ++i)
+	{
+		if (next[i] && next[i]->element.first != INT_MAX)
+			++node_Level;
+		else
+			break;
+	}
+	return node_Level;
+}
+
+template<typename K, typename V>
+SkipNode<K, V>* SkipList<K, V>::find(const K& key)
+{
+	SkipNode<K, V>* thead = head;
+	int currMaxLevel = nodeLevel(thead->next);
+	for (int i = currMaxLevel; i >= 0; --i)
+	{
+		while (thead->next[i] && thead->next[i]->element.first < key)
+			thead = thead->next[i];
+	}
+	thead = thead->next[0];
+	if (thead->element.first == key)
+	{
+		cout << "find successful" << thead->element.first << ":" << thead->element.second << endl;
+		return thead;
+	}
+	else
+	{
+		cout << "not find" << endl;
+		return nullptr;
+	}
+}
+
+template<typename K, typename V>
+bool SkipList<K, V>::insert(const pair<const K, V>& p)
+{
+	int level = randomLevel();
+	SkipNode<K, V>* node = find(p.first);
+	if (node)
+	{
+		node->element.second = p.second;
+		cout << p.first << "已存在" << ":" << p.second << endl;
+		return false;
+	}
+	node = new SkipNode<K, V>(p,level);
+	SkipNode<K, V>* thead = head;
+	for (int i = level - 1; i >= 0; --i)
+	{
+		while (thead->next[i] && thead->next[i]->element.first < p.first)
+			thead = thead->next[i];
+		node->next[i] = thead->next[i];
+		thead->next[i] = node;
+	}
+	return true;
+}
+
+template<typename K, typename V>
+bool SkipList<K, V>::deleteNode(const K& key)
+{
+	SkipNode<K, V>* toBeDeleted = find(key);
+	if (!toBeDeleted)
+	{
+		cout << "删除失败，不存在该节点" << endl;
+		return false;
+	}
+	SkipNode<K, V>* thead = head;
+	int tlevel = sizeof(toBeDeleted->next) / sizeof(SkipNode<K, V>*);
+	for (int i = tlevel - 1; i >= 0; --i)
+	{
+		while (thead->next[i] && thead->next[i]->element.first < key)
+			thead = thead->next[i];
+		SkipNode<K, V>* node = thead->next[i];
+		thead->next[i] = node->next[i];
+		delete node;
+		node = nullptr;
+	}
+	return true;
+}
+
 int main(int argc, char* argv[])
 {
 	/*StackWithMin<int> min_stack;
@@ -607,7 +717,7 @@ int main(int argc, char* argv[])
 	/*int data[7]{ 1,1,1,4,4,5,5 };
 	cout << binarySerach(data, 7, 1);*/
 
-	BinaryTreeNode* root = new BinaryTreeNode(1);
+	/*BinaryTreeNode* root = new BinaryTreeNode(1);
 	root->left = new BinaryTreeNode(2);
 	root->right = new BinaryTreeNode(3);
 	root->left->left = new BinaryTreeNode(4);
@@ -615,7 +725,17 @@ int main(int argc, char* argv[])
 	root->right->left = new BinaryTreeNode(6);
 	root->right->right = new BinaryTreeNode(7);
 	bfs(root);
-	dfs(root);
+	dfs(root);*/
+
+	SkipList<int, int> s(7);
+	pair<int, int> p(1, 1);
+	s.insert(p);
+	s.find(1);
+	p.second = 2;
+	s.insert(p);
+	s.find(1);
+	s.deleteNode(1);
+	s.find(1);
 
 	return 0;
 }
