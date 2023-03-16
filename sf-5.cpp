@@ -384,13 +384,13 @@ bool verifyPostorder(vector<int>& postorder)
 {
 	if (postorder.empty())
 		return false;
-	int size = postorder.size();
-	int root = postorder.back();
-	int i = 0;
+	size_t size = postorder.size();
+	size_t root = postorder.back();
+	size_t i = 0;
 	for (; i < size - 1; ++i)
 		if (postorder[i] > root)
 			break;
-	int j = i;
+	size_t j = i;
 	for (; j < size - 1; ++j)
 		if (postorder[j] < root)
 			return false;
@@ -432,7 +432,7 @@ public:
 
 void helpPrint(char* nums)
 {
-	int n = strlen(nums);
+	size_t n = strlen(nums);
 	bool is0 = true;
 	for (int i = 0; i < n; ++i)
 	{
@@ -552,7 +552,7 @@ void dfs(BinaryTreeNode* root)
 	stack.push(root);
 	while (!stack.empty())
 	{
-		int n = stack.size();
+		size_t n = stack.size();
 		BinaryTreeNode* node = stack.top();
 		cout << node->value << " ";
 		stack.pop();
@@ -639,7 +639,7 @@ bool SkipList<K, V>::insert(const pair<const K, V>& p)
 		cout << p.first << "已存在" << ":" << p.second << endl;
 		return false;
 	}
-	node = new SkipNode<K, V>(p,level);
+	node = new SkipNode<K, V>(p, level);
 	SkipNode<K, V>* thead = head;
 	for (int i = level - 1; i >= 0; --i)
 	{
@@ -672,6 +672,71 @@ bool SkipList<K, V>::deleteNode(const K& key)
 		node = nullptr;
 	}
 	return true;
+}
+
+template<typename K, typename V>
+bool HashTable<K, V>::insert(const pair<K, V>& p)
+{
+	SingleList* first = find(p.first);
+	if (first)
+	{
+		first->data = p.second;
+		return false;
+	}
+	int pos = hash(p.first);
+	SingleList* node = new SingleList(p.first,p.second);
+	node->next = nullptr;
+	if (!list[pos]->next)
+		list[pos]->next = node;
+	else
+	{
+		SingleList* temp = list[pos]->next;
+		SingleList* last = list[pos];
+		while (temp && temp->key < p.first)
+		{
+			last = temp;
+			temp = temp->next;
+		}
+		node->next = temp;
+		last->next = node;
+	}
+	return true;
+}
+
+template<typename K, typename V>
+bool HashTable<K, V>::deleteNode(const K& key)
+{
+	SingleList* node = find(key);
+	if (!node)
+	{
+		cout << "不存在该元素，无法删除" << endl;
+		return false;
+	}
+	SingleList* toBeDeleted = node->next;
+	node->next = toBeDeleted->next;
+	delete toBeDeleted;
+	toBeDeleted = nullptr;
+	return true;
+}
+
+template<typename K, typename V>
+SingleList* HashTable<K, V>::find(const K& key)
+{
+	int pos = hash(key);
+	SingleList* temp = list[pos]->next;
+	SingleList* last = temp;
+	while (temp && temp->key < key)
+	{
+		last = temp;
+		temp = temp->next;
+	}
+	if (!temp || temp->key != key)
+	{
+		cout << "未找到" << endl;
+		return nullptr;
+	}
+	cout << "Key:" << key << "Value:" << temp->data << endl;
+	return last;
 }
 
 int main(int argc, char* argv[])
@@ -727,7 +792,7 @@ int main(int argc, char* argv[])
 	bfs(root);
 	dfs(root);*/
 
-	SkipList<int, int> s(7);
+	/*SkipList<int, int> s(7);
 	pair<int, int> p(1, 1);
 	s.insert(p);
 	s.find(1);
@@ -735,7 +800,13 @@ int main(int argc, char* argv[])
 	s.insert(p);
 	s.find(1);
 	s.deleteNode(1);
-	s.find(1);
+	s.find(1);*/
+
+	HashTable<int, int> my_hash_table(5);
+	my_hash_table.insert(pair<int, int>(1, 1));
+	my_hash_table.insert(pair<int, int>(1, 2));
+	my_hash_table.insert(pair<int, int>(16, 5));
+	my_hash_table.find(1);
 
 	return 0;
 }

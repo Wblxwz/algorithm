@@ -41,21 +41,74 @@ public:
 	{
 		int size = sizeof(head->next) / sizeof(SkipNode<K, V>*);
 		for (int i = 0; i < size; ++i)
-			while (head->next[i] != tail)
+		{
+			SkipNode<K, V>* thead = head->next[i];
+			while (thead->next[i] && thead->next[i] != tail)
 			{
-				SkipNode<K, V>* tnode = head;
-				head = head->next[i];
+				SkipNode<K, V>* tnode = thead;
+				thead = thead->next[i];
 				delete tnode;
 				tnode = nullptr;
 			}
+		}
 		delete head;
 		head = nullptr;
+		delete tail;
 		tail = nullptr;
 	}
 private:
 	int maxLevel;
 	SkipNode<K, V>* head;
 	SkipNode<K, V>* tail;
+};
+
+struct SingleList
+{
+	SingleList() :data(0), next(nullptr), key(INT_MIN) {}
+	SingleList(const int key,const int data) :data(data),next(nullptr),key(key) {}
+	~SingleList() = default;
+	int key;
+	int data;
+	SingleList* next;
+};
+
+template<typename K,typename V>
+class HashTable
+{
+public:
+	HashTable(int length) :list(new SingleList* [length]), length(length)
+	{
+		for (int i = 0; i < length; ++i)
+			list[i] = new SingleList();;
+	}
+	//采用除法散列函数
+	int hash(const K& key)
+	{
+		return key % length;
+	}
+	bool insert(const pair<K, V>& p);
+	bool deleteNode(const K& key);
+	SingleList* find(const K& key);
+	~HashTable()
+	{
+		for (int i = 0; i < length; ++i)
+		{
+			while (list[i]->next)
+			{
+				SingleList* temp = list[i];
+				list[i] = list[i]->next;
+				delete temp;
+				temp = nullptr;
+			}
+			delete list[i];
+			list[i] = nullptr;
+		}
+		delete[] list;
+		list = nullptr;
+	}
+private:
+	int length;
+	SingleList** list;
 };
 
 namespace mystl
