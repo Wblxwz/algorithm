@@ -65,14 +65,14 @@ private:
 struct SingleList
 {
 	SingleList() :data(0), next(nullptr), key(INT_MIN) {}
-	SingleList(const int key,const int data) :data(data),next(nullptr),key(key) {}
+	SingleList(const int key, const int data) :data(data), next(nullptr), key(key) {}
 	~SingleList() = default;
 	int key;
 	int data;
 	SingleList* next;
 };
 
-template<typename K,typename V>
+template<typename K, typename V>
 class HashTable
 {
 public:
@@ -109,6 +109,49 @@ public:
 private:
 	int length;
 	SingleList** list;
+};
+
+template <typename T>
+class AVLTreeNode 
+{
+
+public:
+	AVLTreeNode(T value, AVLTreeNode* l, AVLTreeNode* r) :key(value), height(0), left(l), right(r) {}
+	T key;
+	//默认根节点高度为1，空树高度为0
+	int height;
+	AVLTreeNode* left;
+	AVLTreeNode* right; 
+};
+
+template<typename T>
+class AVLTree
+{
+public:
+	AVLTree():root(nullptr){}
+	~AVLTree() {}
+	int getHeight(AVLTreeNode<T>* node);
+	AVLTreeNode<T>* find(const T& key);
+	AVLTreeNode<T>* getRoot()
+	{
+		return root;
+	}
+	void setRoot(AVLTreeNode<T>* root)
+	{
+		this->root = root;
+	}
+	AVLTreeNode<T>* insert(AVLTreeNode<T>* node, const T& key);
+	void remove(const T& key);
+private:
+	//非左旋而是左左情况下的旋转，即node右旋，下述操作类似
+	AVLTreeNode<T>* llRotation(AVLTreeNode<T>* node);
+	AVLTreeNode<T>* rrRotation(AVLTreeNode<T>* node);
+	AVLTreeNode<T>* lrRotation(AVLTreeNode<T>* node);
+	AVLTreeNode<T>* rlRotation(AVLTreeNode<T>* node);
+	AVLTreeNode<T>* myMin(AVLTreeNode<T>* node);
+	AVLTreeNode<T>* myMax(AVLTreeNode<T>* node);
+	AVLTreeNode<T>* deleteNode(AVLTreeNode<T>* node, AVLTreeNode<T>* z);
+	AVLTreeNode<T>* root;
 };
 
 namespace mystl

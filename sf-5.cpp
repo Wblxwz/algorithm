@@ -684,7 +684,7 @@ bool HashTable<K, V>::insert(const pair<K, V>& p)
 		return false;
 	}
 	int pos = hash(p.first);
-	SingleList* node = new SingleList(p.first,p.second);
+	SingleList* node = new SingleList(p.first, p.second);
 	node->next = nullptr;
 	if (!list[pos]->next)
 		list[pos]->next = node;
@@ -737,6 +737,192 @@ SingleList* HashTable<K, V>::find(const K& key)
 	}
 	cout << "Key:" << key << "Value:" << temp->data << endl;
 	return last;
+}
+
+template<typename T>
+int AVLTree<T>::getHeight(AVLTreeNode<T>* node)
+{
+	if (node)
+		return node->height;
+	return 0;
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::find(const T& key)
+{
+	AVLTreeNode<T>* node = root;
+	while (node)
+	{
+		if (node->key == key)
+		{
+			cout << "已找到" << endl;
+			return node;
+		}
+		if (key < node->key)
+			node = node->left;
+		else
+			node = node->right;
+	}
+	cout << "未找到" << endl;
+	return nullptr;
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::llRotation(AVLTreeNode<T>* node)
+{
+	AVLTreeNode<T>* n_left = node->left;
+	node->left = n_left->right;
+	n_left->right = node;
+	node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
+	n_left->height = max(getHeight(n_left->left), getHeight(node)) + 1;
+	return n_left;
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::rrRotation(AVLTreeNode<T>* node)
+{
+	AVLTreeNode<T>* n_right = node->right;
+	node->right = n_right->left;
+	n_right->left = node;
+	node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
+	n_right->height = max(getHeight(node->right), getHeight(node)) + 1;
+	return n_right;
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::lrRotation(AVLTreeNode<T>* node)
+{
+	node->left = rrRotation(node->left);
+	return llRotation(node);
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::rlRotation(AVLTreeNode<T>* node)
+{
+	node->right = llRotation(node->right); 
+	return rrRotation(node);
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::myMin(AVLTreeNode<T>* node)
+{
+	if (!node)
+		return nullptr;
+	AVLTreeNode<T>* tnode = node;
+	while (tnode->left)
+		tnode = tnode->left;
+	return tnode;
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::myMax(AVLTreeNode<T>* node)
+{
+	if (!node)
+		return nullptr;
+	AVLTreeNode<T>* tnode = node;
+	while (tnode->right)
+		tnode = tnode->right;
+	return tnode;
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::insert(AVLTreeNode<T>* node, const T& key)
+{
+	if (!node)
+		node = new AVLTreeNode<T>(key, nullptr, nullptr);
+	else if (key < node->key)
+	{
+		node->left = insert(node->left, key);
+		if (getHeight(node->left) - getHeight(node->right) == 2)
+		{
+			if (key < node->left->key)
+				node = llRotation(node);
+			else
+				node = lrRotation(node);
+		}
+	}
+	else if (key > node->key)
+	{
+		node->right = insert(node->right, key);
+		if (getHeight(node->left) - getHeight(node->right) == -2)
+		{
+			if (key > node->right->key)
+				node = rrRotation(node);
+			else
+				node = rlRotation(node);
+		}
+	}
+	else
+	{
+		cout << "不允许添加相同的节点" << endl;
+		return nullptr;
+	}
+	node->height = max(getHeight(node->left), getHeight(node->right));
+	return node;
+}
+
+template<typename T>
+void AVLTree<T>::remove(const T& key)
+{
+	AVLTreeNode<T>* node = find(key);
+	if (node)
+		root = deleteNode(root, node);
+}
+
+template<typename T>
+AVLTreeNode<T>* AVLTree<T>::deleteNode(AVLTreeNode<T>* node, AVLTreeNode<T>* z)
+{
+	if (!node || !z)
+		return nullptr;
+	if (z->key < node->key)
+	{
+		node->left = deleteNode(node->left, z);
+		if (getHeight(node->left) - getHeight(node->right) == -2)
+		{
+			AVLTreeNode<T>* tnode = node->right;
+			if (getHeight(tnode->left) > getHeight(tnode->right))
+				node = rlRotation(tnode);
+			else
+				node = rrRotation(tnode);
+		}
+	}
+	else if (z->key > node->key)
+	{
+		node->right = deleteNode(node->right, z);
+		if (getHeight(node->left) - getHeight(node->right) == 2)
+		{
+			AVLTreeNode<T>* tnode = node->left;
+			if (getHeight(tnode->left) > getHeight(tnode->right))
+				node = llRotation(node);
+			else
+				node = lrRotation(node);
+		}
+	}
+	else
+	{
+		if (node->left && node->right)
+		{
+			if (getHeight(node->left) > getHeight(node->right))
+			{
+				AVLTreeNode<T>* max = myMax(node->left);
+				node->key = max->key;
+				node->left = deleteNode(node->left, max);
+			}
+			else
+			{
+				AVLTreeNode<T>* min = myMin(node->right);
+				node->key = min->key;
+				node->right = deleteNode(node->right, min);
+			}
+		}
+		else
+		{
+			AVLTreeNode<T>* tnode = node;
+			node = node->left ? node->left : node->right;
+			delete tnode;
+		}
+	}
+	return node;
 }
 
 int main(int argc, char* argv[])
@@ -802,11 +988,20 @@ int main(int argc, char* argv[])
 	s.deleteNode(1);
 	s.find(1);*/
 
-	HashTable<int, int> my_hash_table(5);
+	/*HashTable<int, int> my_hash_table(5);
 	my_hash_table.insert(pair<int, int>(1, 1));
 	my_hash_table.insert(pair<int, int>(1, 2));
 	my_hash_table.insert(pair<int, int>(16, 5));
-	my_hash_table.find(1);
+	my_hash_table.find(1);*/
+
+	AVLTree<int>* tree = new AVLTree<int>;
+	tree->setRoot(tree->insert(tree->getRoot(), 1));
+	tree->insert(tree->getRoot(), 2);
+	tree->insert(tree->getRoot(), 3);
+	
+	tree->find(2);
+	tree->remove(2);
+	tree->find(2);
 
 	return 0;
 }
